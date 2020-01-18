@@ -13,7 +13,7 @@ namespace ImportModule
     {
         private string currentlyProcessedAlternativeId;
         private string currentlyProcessedCriterionId;
-        private string currentlyProcessedFile;
+        public string CurrentlyProcessedFile;
         private string xmcdaDirectory;
 
         private void validateInputFilesSet()
@@ -56,11 +56,11 @@ namespace ImportModule
 
         private XmlDocument loadFile(string fileName)
         {
-            currentlyProcessedFile = Path.Combine(xmcdaDirectory, fileName);
-            ValidateFilePath(currentlyProcessedFile);
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, fileName);
+            ValidateFilePath(CurrentlyProcessedFile);
 
             var xmlDocument = new XmlDocument();
-            xmlDocument.Load(currentlyProcessedFile);
+            xmlDocument.Load(CurrentlyProcessedFile);
 
             return xmlDocument;
         }
@@ -175,13 +175,13 @@ namespace ImportModule
 
         private void LoadAlternativesRanks()
         {
-            currentlyProcessedFile = Path.Combine(xmcdaDirectory, "alternatives_ranks.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "alternatives_ranks.xml");
 
-            if (!File.Exists(currentlyProcessedFile))
+            if (!File.Exists(CurrentlyProcessedFile))
                 return;
 
             var xmlDocument = new XmlDocument();
-            xmlDocument.Load(currentlyProcessedFile);
+            xmlDocument.Load(CurrentlyProcessedFile);
 
             foreach (XmlNode xmlNode in xmlDocument.DocumentElement.ChildNodes[0])
             foreach (XmlNode alternativeResult in xmlNode.ChildNodes)
@@ -205,13 +205,13 @@ namespace ImportModule
 
         private void LoadCriteriaSegments()
         {
-            currentlyProcessedFile = Path.Combine(xmcdaDirectory, "criteria_segments.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "criteria_segments.xml");
 
-            if (!File.Exists(currentlyProcessedFile))
+            if (!File.Exists(CurrentlyProcessedFile))
                 return;
 
             var xmlDocument = new XmlDocument();
-            xmlDocument.Load(currentlyProcessedFile);
+            xmlDocument.Load(CurrentlyProcessedFile);
 
             foreach (XmlNode xmlNode in xmlDocument.DocumentElement.ChildNodes[0])
             foreach (XmlNode criterionSegments in xmlNode.ChildNodes)
@@ -230,13 +230,13 @@ namespace ImportModule
 
         private void LoadValueFunctions()
         {
-            currentlyProcessedFile = Path.Combine(xmcdaDirectory, "value_functions.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "value_functions.xml");
 
-            if (!File.Exists(currentlyProcessedFile))
+            if (!File.Exists(CurrentlyProcessedFile))
                 return;
 
             var xmlDocument = new XmlDocument();
-            xmlDocument.Load(currentlyProcessedFile);
+            xmlDocument.Load(CurrentlyProcessedFile);
 
             foreach (XmlNode xmlNode in xmlDocument.DocumentElement.ChildNodes[0])
             {
@@ -293,6 +293,7 @@ namespace ImportModule
             LoadAlternativesRanks();
             LoadValueFunctions();
 
+            CurrentlyProcessedFile = "";
             setMinAndMaxCriterionValues();
         }
     }
