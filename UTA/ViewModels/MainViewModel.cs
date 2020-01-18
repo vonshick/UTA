@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -485,9 +486,10 @@ namespace UTA.ViewModels
             if (!await NewSolution()) return;
 
             var filePath = openDirectoryDialog.SelectedPath;
+            var dataLoader = new XMCDALoader();
+
             try
             {
-                var dataLoader = new XMCDALoader();
                 dataLoader.LoadData(filePath);
                 Criteria.CriteriaCollection = new ObservableCollection<Criterion>(dataLoader.CriterionList);
                 // works assuming that CriteriaValuesList and ReferenceRank property are initialized properly
@@ -517,7 +519,17 @@ namespace UTA.ViewModels
             }
             catch (Exception exception)
             {
-                ShowLoadErrorDialog(exception);
+                if (exception is ImproperFileStructureException || dataLoader.CurrentlyProcessedFile.Equals(""))
+                {
+                    ShowLoadErrorDialog(exception);
+                }
+                else
+                {
+                    if(exception.Message != null)
+                        ShowLoadErrorDialog(new Exception(Path.GetFileName(dataLoader.CurrentlyProcessedFile) + ": " + exception.Message));
+                    else
+                        ShowLoadErrorDialog(new Exception(Path.GetFileName(dataLoader.CurrentlyProcessedFile) + ": "));
+                }
             }
         }
 
