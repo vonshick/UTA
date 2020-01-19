@@ -200,7 +200,7 @@ namespace ExportModule
                     xmcdaWriter.WriteEndElement();
                     xmcdaWriter.WriteStartElement("value");
                     xmcdaWriter.WriteStartElement("integer");
-                    xmcdaWriter.WriteString(alternative.ReferenceRank.ToString());
+                    xmcdaWriter.WriteString((alternative.ReferenceRank + 1).ToString());
                     xmcdaWriter.WriteEndElement();
                     xmcdaWriter.WriteEndElement();
                     xmcdaWriter.WriteEndElement();

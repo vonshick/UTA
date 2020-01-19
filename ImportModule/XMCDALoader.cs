@@ -194,7 +194,7 @@ namespace ImportModule
                 {
                     var rank = int.Parse(alternativeResult.ChildNodes[0].InnerText);
                     var alternativeIndex = alternativeList.FindIndex(compareAlternativeIds);
-                    alternativeList[alternativeIndex].ReferenceRank = rank;
+                    alternativeList[alternativeIndex].ReferenceRank = rank - 1;
                 }
         }
 

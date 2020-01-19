@@ -41,7 +41,6 @@ namespace DataModel.Input
         public double MinValue { get; set; } = double.MaxValue;
         public double MaxValue { get; set; } = double.MinValue;
         public bool IsEnum { get; set; } = false;
-        public Dictionary<string, double> EnumDictionary { get; set; }
 
         public string Name
         {
