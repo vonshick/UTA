@@ -368,7 +368,12 @@ namespace CalculationsEngine
                 deepCopyofMax[i] = max[i];
                 deepCopyofMin[i] = min[i];
                 if (deepCopyofMax[i] < deepCopyofMin[i])
-                    Console.WriteLine("błąd max < min");
+                {
+                    if (deepCopyofMax[i] < arrayOfValues[i])
+                        deepCopyofMax[i] = arrayOfValues[i];
+                    if (deepCopyofMin[i] > arrayOfValues[i])
+                        deepCopyofMin[i] = arrayOfValues[i];
+                }
             }
 
             foreach (var element in criterionEndPoints)
@@ -464,7 +469,7 @@ namespace CalculationsEngine
                 return (min, max);
             }
 
-            nominator += DeltaThreshold - 0.00000001; // todo
+            nominator += DeltaThreshold - 0.00000001;
             if (denominator > 0)
             {
                 sum = arrayOfValues[index] + nominator / denominator;
@@ -489,85 +494,44 @@ namespace CalculationsEngine
 
         private double[,] CalculateRestrictions(double[,] recalculatedMatrix, FinalRanking finalRanking)
         {
-            var height = variantsList.Count - 1;
-            var n = 0;
-            for (var r = 0; r < variantsList.Count - 1; r++)
-                if (Math.Round(finalRanking.FinalRankingCollection[r].Utility - finalRanking.FinalRankingCollection[r + 1].Utility, 8) <
-                    DeltaThreshold)
-                {
-                    n++;
-                }
-                else
-                {
-                    if (++n > 2) height += -n + n * (n + 1);
-                    n = 1;
-                }
-
+            var height = finalRanking.FinalRankingCollection.Count - 2 > 0
+                ? factorialRecursion(variantsList.Count) /
+                  factorialRecursion(variantsList.Count - 2)
+                : 2;
             var matrix = new double[height, criterionFieldsCount + 1];
-            var similarities = new List<int>();
-            var extra = 0;
-            for (var r = 0; r < variantsList.Count - 1; r++)
-                if (Math.Round(finalRanking.FinalRankingCollection[r].Utility - finalRanking.FinalRankingCollection[r + 1].Utility, 8) >=
-                    DeltaThreshold)
-                {
-                    for (var c = 0; c < criterionFieldsCount; c++)
-                        matrix[r + extra, c] = Math.Round(recalculatedMatrix[r, c] - recalculatedMatrix[r + 1, c], 7);
-                    matrix[r + extra, matrix.GetLength(1) - 1] = DeltaThreshold;
-                    if (similarities.Count == 1)
-                    {
-                        similarities.Clear();
-                    }
-                    else if (similarities.Count > 1)
-                    {
-                        similarities.Add(r);
-                        similarities.Add(r + 1);
-                        for (var outerLoop = 0; outerLoop < similarities.Count(); outerLoop++)
-                        for (var innerLoop = outerLoop + 2; innerLoop < similarities.Count(); innerLoop++)
+            var extra = -1;
+            for (var row1 = 0; row1 < variantsList.Count; row1++)
+                for (var row2 = row1; row2 < variantsList.Count; row2++)
+                    if(row1 != row2)
+                        if (Math.Round(finalRanking.FinalRankingCollection[row1].Utility - finalRanking.FinalRankingCollection[row2].Utility, 8) >=
+                        DeltaThreshold)
                         {
                             extra++;
                             for (var c = 0; c < criterionFieldsCount; c++)
-                                matrix[r + extra, c] =
-                                    Math.Round(
-                                        recalculatedMatrix[similarities[outerLoop], c] - recalculatedMatrix[similarities[innerLoop], c], 7);
-                            if (Math.Round(
-                                    finalRanking.FinalRankingCollection[similarities[outerLoop]].Utility -
-                                    finalRanking.FinalRankingCollection[similarities[innerLoop]].Utility, 8) >=
-                                DeltaThreshold)
-                            {
-                                matrix[r + extra, matrix.GetLength(1) - 1] = DeltaThreshold;
-                            }
-                            else
-                            {
-                                matrix[r + extra, matrix.GetLength(1) - 1] = 0;
-                                extra++;
-                                for (var c = 0; c < criterionFieldsCount; c++)
-                                    matrix[r + extra, c] =
-                                        Math.Round(
-                                            recalculatedMatrix[similarities[innerLoop], c] - recalculatedMatrix[similarities[outerLoop], c],
-                                            7);
-                                matrix[r + extra, matrix.GetLength(1) - 1] = 0;
-                            }
+                                matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                            matrix[extra, matrix.GetLength(1) - 1] = DeltaThreshold;
+                        }
+                        else
+                        {
+                            extra++;
+                            for (var c = 0; c < criterionFieldsCount; c++)
+                                matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                            matrix[extra, matrix.GetLength(1) - 1] = 0;
+                            extra++;
+                            for (var c = 0; c < criterionFieldsCount; c++)
+                                matrix[extra, c] = Math.Round(recalculatedMatrix[row2, c] - recalculatedMatrix[row1, c], 7);
+                            matrix[extra, matrix.GetLength(1) - 1] = 0;
                         }
 
-                        similarities.Clear();
-                    }
-
-                    similarities.Add(r);
-                }
-                else
-                {
-                    similarities.Add(r);
-                    for (var c = 0; c < criterionFieldsCount; c++)
-                        matrix[r + extra, c] = Math.Round(recalculatedMatrix[r, c] - recalculatedMatrix[r + 1, c], 7);
-                    matrix[r + extra, matrix.GetLength(1) - 1] = 0;
-
-                    extra++;
-                    for (var c = 0; c < criterionFieldsCount; c++)
-                        matrix[r + extra, c] = Math.Round(recalculatedMatrix[r + 1, c] - recalculatedMatrix[r, c], 7);
-                    matrix[r + extra, matrix.GetLength(1) - 1] = 0;
-                }
-
             return matrix;
+        }
+
+        public int factorialRecursion(int number)
+        {
+            if (number == 1)
+                return 1;
+            else
+                return number * factorialRecursion(number - 1);
         }
 
         public double[,] RecreateMatrix(FinalRanking finalRanking)
