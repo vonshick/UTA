@@ -195,6 +195,7 @@ namespace UTA.ViewModels
                 if (_preserveKendallCoefficient == value) return;
                 _preserveKendallCoefficient = value;
                 _solver?.UpdatePreserveKendallCoefficient(_preserveKendallCoefficient);
+                RefreshCharts();
                 OnPropertyChanged(nameof(PreserveKendallCoefficient));
             }
         }
