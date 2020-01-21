@@ -99,21 +99,7 @@ namespace CalculationsEngine
                 restrictionsMatrix = CalculateRestrictions(transientMatrix, finalReferenceRanking);
             }
 
-            double[] minArray;
-            double[] maxArray;
-            (minArray, maxArray) = CalculateRangeOfValues(restrictionsMatrix, arrayOfValues);
-            var count = 0;
-            for (var numOfCriterion = 0; numOfCriterion < partialUtilityList.Count; numOfCriterion++)
-            {
-                partialUtilityList[numOfCriterion].PointsValues[0].MinValue = 0;
-                partialUtilityList[numOfCriterion].PointsValues[0].MaxValue = 0;
-                for (var i = 1; i < partialUtilityList[numOfCriterion].PointsValues.Count; i++)
-                {
-                    partialUtilityList[numOfCriterion].PointsValues[i].MinValue = minArray[count];
-                    partialUtilityList[numOfCriterion].PointsValues[i].MaxValue = maxArray[count];
-                    count++;
-                }
-            }
+            UpdateMinMax();
 
             var tau = CalculateKendallCoefficient(finalReferenceRanking);
             var restOfReferenceList = CreateRanking(arrayOfValues, otherAlternativesMatrix, otherAlternatives);
@@ -127,7 +113,7 @@ namespace CalculationsEngine
         }
 
         public void LoadState(List<PartialUtility> partialUtilityList, List<List<Alternative>> referenceRankingList,
-            List<Alternative> notRankedAlternatives, Results results)
+            List<Alternative> notRankedAlternatives, Results results, bool preserveKendallCoefficient = false)
         {
             Result = results;
             variantsList = new List<KeyValuePair<Alternative, int>>();
@@ -138,11 +124,6 @@ namespace CalculationsEngine
                     variantsList.Add(new KeyValuePair<Alternative, int>(alternative, rank));
                     arternativesList.Add(alternative);
                 }
-
-            for (var i = 0; i < arternativesList.Count - 1; i++)
-                if (variantsList[i].Value == variantsList[i + 1].Value)
-                    equals.Add(i);
-            equals.Add(variantsList.Count - 1);
 
             otherAlternatives = notRankedAlternatives;
             otherAlternativesMatrix = CreateMatrix(otherAlternatives);
@@ -160,18 +141,19 @@ namespace CalculationsEngine
                 var sum = 0.0;
                 for (var i = 1; i < partialUtilityList[numOfCriterion].PointsValues.Count; i++)
                 {
-                    var newValue = partialUtilityList[numOfCriterion].PointsValues[i].X - sum;
+                    var newValue = partialUtilityList[numOfCriterion].PointsValues[i].Y - sum;
                     arrayOfValues[count] = newValue;
                     sum += newValue;
                     count++;
                 }
             }
-
-
+            PreserveKendallCoefficient = preserveKendallCoefficient;
             var finalReferenceList = CreateRanking(arrayOfValues, transientMatrix, arternativesList);
             var finalReferenceRanking = new FinalRanking(finalReferenceList);
             var recalculatedMatrix = RecreateMatrix(finalReferenceRanking);
             restrictionsMatrix = CalculateRestrictions(recalculatedMatrix, finalReferenceRanking);
+            UpdateMinMax();
+
             var tau = CalculateKendallCoefficient(finalReferenceRanking);
             var restOfReferenceList = CreateRanking(arrayOfValues, otherAlternativesMatrix, otherAlternatives);
             var allFinalRankingEntry = finalReferenceList.Concat(restOfReferenceList).ToList();
@@ -183,20 +165,13 @@ namespace CalculationsEngine
             Result.KendallCoefficient = tau;
         }
 
-        public void UpdatePreserveKendallCoefficient(bool preserveKendallCoefficient)
+        private void UpdateMinMax()
         {
-            var referenceAlternatives = new FinalRanking();
-            foreach (var finalAlternative in Result.FinalRanking.FinalRankingCollection)
-            foreach (var partialAlternative in arternativesList)
-                if (finalAlternative.Alternative.Name == partialAlternative.Name)
-                    referenceAlternatives.FinalRankingCollection.Add(finalAlternative);
-            var recalculatedMatrix = RecreateMatrix(referenceAlternatives);
-            restrictionsMatrix = CalculateRestrictions(recalculatedMatrix, referenceAlternatives);
-            PreserveKendallCoefficient = preserveKendallCoefficient;
             double[] minArray;
             double[] maxArray;
-            (minArray, maxArray) = CalculateRangeOfValues(restrictionsMatrix, arrayOfValues);
             var count = 0;
+            (minArray, maxArray) = CalculateRangeOfValues(restrictionsMatrix, arrayOfValues);
+            count = 0;
             for (var numOfCriterion = 0; numOfCriterion < Result.PartialUtilityFunctions.Count; numOfCriterion++)
             {
                 Result.PartialUtilityFunctions[numOfCriterion].PointsValues[0].MinValue = 0;
@@ -209,6 +184,19 @@ namespace CalculationsEngine
                     count++;
                 }
             }
+        }
+
+        public void UpdatePreserveKendallCoefficient(bool preserveKendallCoefficient)
+        {
+            var referenceAlternatives = new FinalRanking();
+            foreach (var finalAlternative in Result.FinalRanking.FinalRankingCollection)
+            foreach (var partialAlternative in arternativesList)
+                if (finalAlternative.Alternative.Name == partialAlternative.Name)
+                    referenceAlternatives.FinalRankingCollection.Add(finalAlternative);
+            var recalculatedMatrix = RecreateMatrix(referenceAlternatives);
+            restrictionsMatrix = CalculateRestrictions(recalculatedMatrix, referenceAlternatives);
+            PreserveKendallCoefficient = preserveKendallCoefficient;
+            UpdateMinMax();
 
             var finalReferenceList = CreateRanking(arrayOfValues, transientMatrix, arternativesList);
             var finalReferenceRanking = new FinalRanking(finalReferenceList);
@@ -267,23 +255,7 @@ namespace CalculationsEngine
                 Result.PartialUtilityFunctions[criterionIndex] = partialUtility;
             }
 
-
-            double[] minArray;
-            double[] maxArray;
-            (minArray, maxArray) = CalculateRangeOfValues(restrictionsMatrix, arrayOfValues);
-            count = 0;
-            for (var numOfCriterion = 0; numOfCriterion < Result.PartialUtilityFunctions.Count; numOfCriterion++)
-            {
-                Result.PartialUtilityFunctions[numOfCriterion].PointsValues[0].MinValue = 0;
-                Result.PartialUtilityFunctions[numOfCriterion].PointsValues[0].MaxValue = 0;
-
-                for (var i = 1; i < Result.PartialUtilityFunctions[numOfCriterion].PointsValues.Count; i++)
-                {
-                    Result.PartialUtilityFunctions[numOfCriterion].PointsValues[i].MinValue = minArray[count];
-                    Result.PartialUtilityFunctions[numOfCriterion].PointsValues[i].MaxValue = maxArray[count];
-                    count++;
-                }
-            }
+            UpdateMinMax();
 
             var finalReferenceList = CreateRanking(arrayOfValues, transientMatrix, arternativesList);
             var finalReferenceRanking = new FinalRanking(finalReferenceList);
@@ -363,10 +335,11 @@ namespace CalculationsEngine
 
             var deepCopyofMin = new double[min.Length];
             var deepCopyofMax = new double[max.Length];
+            var precision = 100000000;
             for (var i = 0; i < min.Length; i++)
             {
-                deepCopyofMax[i] = max[i];
-                deepCopyofMin[i] = min[i];
+                deepCopyofMax[i] = Math.Floor(max[i] * precision) / precision;
+                deepCopyofMin[i] = Math.Ceiling(min[i] * precision) / precision;
                 if (deepCopyofMax[i] < deepCopyofMin[i])
                 {
                     if (deepCopyofMax[i] < arrayOfValues[i])
@@ -425,7 +398,6 @@ namespace CalculationsEngine
             var nominator = (double) 0;
             var denominator = (double) 0;
             var sum = (double) 0;
-            double precision = 10000000;
 
 
             for (var i = 0; i < arrayOfValues.Length; i++)
@@ -451,14 +423,14 @@ namespace CalculationsEngine
                 if (denominator > 0)
                 {
                     sum = arrayOfValues[index] + nominator / denominator;
-                    min = Math.Round(sum, 10);
+                    min = sum;
                     max = 1;
                 }
                 else if (denominator < 0)
                 {
                     sum = arrayOfValues[index] + nominator / denominator;
                     min = -1;
-                    max = Math.Round(sum, 10);
+                    max = sum;
                 }
                 else
                 {
@@ -469,17 +441,17 @@ namespace CalculationsEngine
                 return (min, max);
             }
 
-            nominator += DeltaThreshold - 0.00000001;
+            nominator += DeltaThreshold - 0.0000001;
             if (denominator > 0)
             {
                 sum = arrayOfValues[index] + nominator / denominator;
                 min = -1;
-                max = Math.Round(sum, 10);
+                max = sum;
             }
             else if (denominator < 0)
             {
                 sum = arrayOfValues[index] + nominator / denominator;
-                min = Math.Round(sum, 10);
+                min = sum;
                 max = 1;
             }
             else
