@@ -495,6 +495,7 @@ namespace UTA.ViewModels
                 Criteria.CriteriaCollection = new ObservableCollection<Criterion>(dataLoader.CriterionList);
                 // works assuming that CriteriaValuesList and ReferenceRank property are initialized properly
                 Alternatives.AlternativesCollection = new ObservableCollection<Alternative>(dataLoader.AlternativeList);
+                PreserveKendallCoefficient = dataLoader.PreserveKendallCoefficient;
                 Results.PartialUtilityFunctions = dataLoader.Results.PartialUtilityFunctions;
                 if (Results.PartialUtilityFunctions.Count <= 0) return;
                 var alternativesDeepCopy = Alternatives.GetDeepCopyOfAlternatives();

@@ -11,6 +11,7 @@ namespace ImportModule
 {
     public class XMCDALoader : DataLoader
     {
+        public bool PreserveKendallCoefficient = false;
         private string currentlyProcessedAlternativeId;
         private string currentlyProcessedCriterionId;
         public string CurrentlyProcessedFile;
@@ -278,6 +279,25 @@ namespace ImportModule
             }
         }
 
+        private void LoadMethodParameters()
+        {
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "method_parameters.xml");
+
+            if (!File.Exists(CurrentlyProcessedFile))
+                return;
+
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(CurrentlyProcessedFile);
+
+            bool preserveKendallCoefficient;
+
+            if(xmlDocument.GetElementsByTagName("boolean")[0] != null)
+                if (bool.TryParse(xmlDocument.GetElementsByTagName("boolean")[0].InnerText, out preserveKendallCoefficient))
+                    PreserveKendallCoefficient = preserveKendallCoefficient;
+                else
+                    PreserveKendallCoefficient = false;
+        }
+
         protected override void ProcessFile(string xmcdaDirectory)
         {
             this.xmcdaDirectory = xmcdaDirectory;
@@ -292,6 +312,7 @@ namespace ImportModule
             LoadCriteriaSegments();
             LoadAlternativesRanks();
             LoadValueFunctions();
+            LoadMethodParameters();
 
             CurrentlyProcessedFile = "";
             setMinAndMaxCriterionValues();
