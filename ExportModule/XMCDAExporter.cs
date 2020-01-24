@@ -17,27 +17,32 @@ namespace ExportModule
         public bool OverwriteFile;
         private readonly Results results;
         private XmlTextWriter xmcdaWriter;
+        private readonly bool _preserveKendalCoefficient;
 
         public XMCDAExporter(string outputDirectory,
             List<Criterion> criterionList,
             List<Alternative> alternativeList,
-            Results results)
+            Results results, 
+            bool preserveKendallCoefficient)
         {
             OverwriteFile = false;
             this.outputDirectory = outputDirectory;
             this.criterionList = criterionList;
             this.alternativeList = alternativeList;
             this.results = results;
+            _preserveKendalCoefficient = preserveKendallCoefficient;
         }
 
         public XMCDAExporter(string outputDirectory,
             List<Criterion> criterionList,
-            List<Alternative> alternativeList)
+            List<Alternative> alternativeList,
+            bool preserveKendallCoefficient)
         {
             OverwriteFile = false;
             this.outputDirectory = outputDirectory;
             this.criterionList = criterionList;
             this.alternativeList = alternativeList;
+            _preserveKendalCoefficient = preserveKendallCoefficient;
         }
 
         private void checkIfFileExists(string path)
@@ -61,6 +66,7 @@ namespace ExportModule
             checkIfFileExists(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "criteria_segments.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "value_functions.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "method_parameters.xml"));
         }
 
         private void initializeWriter(string filePath)
@@ -278,6 +284,23 @@ namespace ExportModule
             xmcdaWriter.Close();
         }
 
+        private void saveKendalPreserveCondition()
+        {
+            initializeWriter(Path.Combine(outputDirectory, "method_parameters.xml"));
+            xmcdaWriter.WriteStartElement("methodParameters");
+            xmcdaWriter.WriteStartElement("parameter");
+            xmcdaWriter.WriteAttributeString("id", "post_optimality");
+            xmcdaWriter.WriteStartElement("value");
+            xmcdaWriter.WriteStartElement("boolean");
+            xmcdaWriter.WriteString(_preserveKendalCoefficient.ToString().ToLower());
+            xmcdaWriter.WriteEndElement();
+            xmcdaWriter.WriteEndElement();
+            xmcdaWriter.WriteEndElement();
+            xmcdaWriter.WriteEndElement();
+            xmcdaWriter.WriteEndDocument();
+            xmcdaWriter.Close();
+        }
+
         public void saveInput()
         {
             checkIfInputFilesExists();
@@ -285,6 +308,7 @@ namespace ExportModule
             saveAlternatives();
             saveCriterionScales();
             savePerformanceTable();
+            saveKendalPreserveCondition();
         }
 
         public void saveResults()

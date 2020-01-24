@@ -566,7 +566,7 @@ namespace UTA.ViewModels
             }
 
             var dataSaver = new XMCDAExporter(_saveData.FilePath, new List<Criterion>(Criteria.CriteriaCollection),
-                new List<Alternative>(Alternatives.AlternativesCollection), Results) {OverwriteFile = true};
+                new List<Alternative>(Alternatives.AlternativesCollection), Results, PreserveKendallCoefficient) {OverwriteFile = true};
             try
             {
                 if (_saveData.IsSavingWithResults == true) dataSaver.saveSession();
@@ -590,7 +590,7 @@ namespace UTA.ViewModels
 
             var directoryPath = saveXMCDADialog.SelectedPath;
             var dataSaver = new XMCDAExporter(directoryPath, new List<Criterion>(Criteria.CriteriaCollection),
-                new List<Alternative>(Alternatives.AlternativesCollection), Results);
+                new List<Alternative>(Alternatives.AlternativesCollection), Results, PreserveKendallCoefficient);
 
             await TryToSave(false, dataSaver, directoryPath);
         }
@@ -607,7 +607,7 @@ namespace UTA.ViewModels
 
             var directoryPath = saveXMCDADialog.SelectedPath;
             var dataSaver = new XMCDAExporter(directoryPath, new List<Criterion>(Criteria.CriteriaCollection),
-                new List<Alternative>(Alternatives.AlternativesCollection), Results);
+                new List<Alternative>(Alternatives.AlternativesCollection), Results, PreserveKendallCoefficient);
 
             await TryToSave(true, dataSaver, directoryPath);
         }
