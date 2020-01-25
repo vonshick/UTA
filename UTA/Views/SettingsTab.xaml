@@ -12,7 +12,7 @@
         <TextBlock Text="Settings" FontSize="{StaticResource CommonFontSize0}" Margin="0,0,0,16" />
 
         <StackPanel Margin="0,0,0,20">
-          <TextBlock Text="Delta threshold for discrimination of zero" FontSize="{StaticResource CommonFontSize1}"
+          <TextBlock Text="Delta threshold for indifference" FontSize="{StaticResource CommonFontSize1}"
                      Margin="0,0,0,2" TextWrapping="Wrap" />
           <TextBlock
             Text="Controls the value of delta for indifference threshold in calculations. It is the absolute value of the utilities subtraction."

@@ -13,8 +13,9 @@
                       xmlns:tabModel="clr-namespace:UTA.Models.Tab"
                       x:Class="UTA.Views.MainView" mc:Ignorable="d"
                       d:DataContext="{d:DesignInstance viewModels:MainViewModel}" Title="UTA Extended" WindowState="Maximized"
-                      Width="1250" Height="700" MinWidth="850" MinHeight="600" Left="12" Top="12"
-                      Closing="ApplicationClosing">
+                      Width="1250" Height="700" MinWidth="850" MinHeight="600" Left="12" Top="12" 
+                      Icon="..\icon_UTA.ico" Closing="ApplicationClosing">
+  <!-- TODO: check if icon it's working after release -->
   <controls:MetroWindow.Resources>
     <!--values-->
     <sys:Double x:Key="ExpanderHeaderHeight">26</sys:Double>
@@ -669,8 +670,8 @@
               </Expander.Resources>
               <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-                  <TextBlock Text="Kendall Coefficient: " Margin="8,2,0,2" FontSize="{StaticResource CommonFontSize2}" />
-                  <TextBlock FontSize="{StaticResource CommonFontSize2}" Margin="0,2">
+                  <TextBlock Text="Kendall Coefficient: " Margin="8,1,0,2" FontSize="{StaticResource CommonFontSize2}" />
+                  <TextBlock FontSize="{StaticResource CommonFontSize2}" Margin="0,1,0,2">
                     <TextBlock.Style>
                       <Style TargetType="{x:Type TextBlock}">
                         <Style.Triggers>

@@ -29,7 +29,7 @@ namespace DataModel.Results
             {
                 if (Nullable.Equals(value, _kendallCoefficient)) return;
                 _kendallCoefficient = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(KendallCoefficient));
             }
         }
 

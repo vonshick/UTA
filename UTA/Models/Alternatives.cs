@@ -14,9 +14,9 @@ namespace UTA.Models
 {
     public class Alternatives : INotifyPropertyChanged
     {
-        private ObservableCollection<Alternative> _alternativesCollection;
         private readonly Criteria _criteria;
         private readonly ReferenceRanking _referenceRanking;
+        private ObservableCollection<Alternative> _alternativesCollection;
 
 
         public Alternatives(Criteria criteria, ReferenceRanking referenceRanking)
@@ -37,7 +37,7 @@ namespace UTA.Models
                 InitializeCriterionValueNameUpdaterWatcher();
             };
 
-            InitializeWatchers();
+            InitializeCriteriaMinMaxUpdaterWatcher();
             InitializeCriterionValueNameUpdaterWatcher();
         }
 
@@ -75,7 +75,7 @@ namespace UTA.Models
         private void InitializeCriterionValueNameUpdaterWatcher()
         {
             foreach (var criterion in _criteria.CriteriaCollection)
-                AddCriterionNamePropertyChangedHandler(criterion);
+                InitializeCriterionNamePropertyChangedHandler(criterion);
 
             _criteria.CriteriaCollection.CollectionChanged += (sender, args) =>
             {
@@ -83,8 +83,13 @@ namespace UTA.Models
                 {
                     var addedCriterion = (Criterion) args.NewItems[0];
                     foreach (var alternative in AlternativesCollection)
-                        alternative.AddCriterionValue(new CriterionValue(addedCriterion.Name, null));
-                    AddCriterionNamePropertyChangedHandler(addedCriterion);
+                    {
+                        var newCriterionValue = new CriterionValue(addedCriterion.Name, null);
+                        InitializeCriterionValueValuePropertyChangedHandler(newCriterionValue, _criteria.CriteriaCollection.Count - 1);
+                        alternative.AddCriterionValue(newCriterionValue);
+                    }
+
+                    InitializeCriterionNamePropertyChangedHandler(addedCriterion);
                 }
                 else if (args.Action == NotifyCollectionChangedAction.Remove)
                 {
@@ -99,7 +104,8 @@ namespace UTA.Models
             };
         }
 
-        private void AddCriterionNamePropertyChangedHandler(Criterion criterion)
+
+        private void InitializeCriterionNamePropertyChangedHandler(Criterion criterion)
         {
             criterion.PropertyChanged += (sender, e) =>
             {
@@ -116,15 +122,22 @@ namespace UTA.Models
 
         private void InitializeCriteriaMinMaxUpdaterWatcher()
         {
+            foreach (var alternative in AlternativesCollection)
+                for (var i = 0; i < alternative.CriteriaValuesList.Count; i++)
+                    // order of criteria in CriteriaValuesList and CriteriaCollection are the same
+                    InitializeCriterionValueValuePropertyChangedHandler(alternative.CriteriaValuesList[i], i);
+
             AlternativesCollection.CollectionChanged += (sender, e) =>
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
                     var addedAlternative = (Alternative) e.NewItems[0];
-                    foreach (var criterionValue in addedAlternative.CriteriaValuesList)
+                    for (var criterionIndex = 0; criterionIndex < addedAlternative.CriteriaValuesList.Count; criterionIndex++)
                     {
+                        var criterionValue = addedAlternative.CriteriaValuesList[criterionIndex];
+                        var associatedCriterion = _criteria.CriteriaCollection[criterionIndex];
+                        InitializeCriterionValueValuePropertyChangedHandler(criterionValue, criterionIndex);
                         if (criterionValue.Value == null) return;
-                        var associatedCriterion = _criteria.CriteriaCollection.First(criterion => criterion.Name == criterionValue.Name);
                         associatedCriterion.MinValue = Math.Min(associatedCriterion.MinValue, (double) criterionValue.Value);
                         associatedCriterion.MaxValue = Math.Max(associatedCriterion.MaxValue, (double) criterionValue.Value);
                     }
@@ -132,32 +145,58 @@ namespace UTA.Models
                 else if (e.Action == NotifyCollectionChangedAction.Remove)
                 {
                     var removedAlternative = (Alternative) e.OldItems[0];
-                    for (var i = 0; i < removedAlternative.CriteriaValuesList.Count; i++)
+                    for (var criterionIndex = 0; criterionIndex < removedAlternative.CriteriaValuesList.Count; criterionIndex++)
                     {
-                        var criterionValue = removedAlternative.CriteriaValuesList[i];
+                        var criterionValue = removedAlternative.CriteriaValuesList[criterionIndex];
                         if (criterionValue.Value == null) return;
-                        var associatedCriterion = _criteria.CriteriaCollection[i];
-                        if (AlternativesCollection.Count == 0)
-                        {
-                            associatedCriterion.MinValue = double.MaxValue;
-                            associatedCriterion.MaxValue = double.MinValue;
-                        }
-                        else
-                        {
-                            if (criterionValue.Value == associatedCriterion.MinValue)
-                                associatedCriterion.MinValue = AlternativesCollection.Select(alternative =>
-                                    alternative.CriteriaValuesList[i].Value is double alternativeCriterionValue
-                                        ? alternativeCriterionValue
-                                        : double.MaxValue).Min();
-                            else if (criterionValue.Value == associatedCriterion.MaxValue)
-                                associatedCriterion.MaxValue = AlternativesCollection.Select(alternative =>
-                                    alternative.CriteriaValuesList[i].Value is double alternativeCriterionValue
-                                        ? alternativeCriterionValue
-                                        : double.MinValue).Max();
-                        }
+                        UpdateCriterionMinMaxValueIfNeeded((double) criterionValue.Value, criterionIndex);
+                    }
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Reset)
+                {
+                    foreach (var criterion in _criteria.CriteriaCollection)
+                    {
+                        criterion.MinValue = double.MinValue;
+                        criterion.MaxValue = double.MaxValue;
                     }
                 }
             };
+        }
+
+        private void InitializeCriterionValueValuePropertyChangedHandler(CriterionValue criterionValue, int criterionIndex)
+        {
+            criterionValue.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != nameof(criterionValue.Value)) return;
+                var extendedArgs = (PropertyChangedExtendedEventArgs<double?>) e;
+                var oldCriterionValueValue = extendedArgs.OldValue;
+                if (oldCriterionValueValue == null) return;
+                UpdateCriterionMinMaxValueIfNeeded((double) oldCriterionValueValue, criterionIndex);
+            };
+        }
+
+        // sets new criterion min/max values when given changedCriterionValueOldValue was and is no longer min/max in given criterion
+        private void UpdateCriterionMinMaxValueIfNeeded(double changedCriterionValueOldValue, int criterionIndex)
+        {
+            var criterion = _criteria.CriteriaCollection[criterionIndex];
+            if (AlternativesCollection.Count == 0)
+            {
+                criterion.MinValue = double.MaxValue;
+                criterion.MaxValue = double.MinValue;
+            }
+            else
+            {
+                if (changedCriterionValueOldValue == criterion.MinValue)
+                    criterion.MinValue = AlternativesCollection.Select(alternative =>
+                        alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
+                            ? criterionValueValue
+                            : double.MaxValue).Min();
+                if (changedCriterionValueOldValue == criterion.MaxValue)
+                    criterion.MaxValue = AlternativesCollection.Select(alternative =>
+                        alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
+                            ? criterionValueValue
+                            : double.MinValue).Max();
+            }
         }
 
         public List<Alternative> GetDeepCopyOfAlternatives()

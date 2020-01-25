@@ -14,9 +14,12 @@ namespace UTA.Helpers.DataValidation
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             var name = (string) value;
-            name = name?.Trim(' ');
-            if (name == null || name.Trim(' ') == "")
+            var trimmedName = name?.Trim(' ');
+            if (string.IsNullOrEmpty(trimmedName))
                 return new ValidationResult(false, "Criterion name cannot be empty!");
+
+            if (trimmedName != name)
+                return new ValidationResult(false, "Using whitespaces around criterion name is forbidden!");
 
             var criteriaCollection = (ObservableCollection<Criterion>) CriteriaCollectionViewSource.Source;
             if (criteriaCollection.Any(criterion => criterion.Name == name))

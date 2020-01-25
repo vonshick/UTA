@@ -8,6 +8,7 @@ using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using UTA.Helpers;
 using UTA.Models.Tab;
 
 namespace UTA.ViewModels
@@ -40,7 +41,7 @@ namespace UTA.ViewModels
             _pointsValues = new List<PartialUtilityValues>(_partialUtility.PointsValues);
             _settings = settingsTabViewModel;
             _refreshCharts = refreshCharts;
-            Name = $"Utility - {Criterion.Name}";
+            Name = $"{Criterion.Name} - Utility";
             Title = $"{Criterion.Name} - Partial Utility Function";
             _ranges = new Dictionary<double, LineAnnotation>();
             _draggablePoints = new Dictionary<double, PointAnnotation>();
@@ -59,7 +60,7 @@ namespace UTA.ViewModels
                 Padding = new OxyThickness(8, 2, 8, 2)
             };
 
-            PlotModel = new PlotModel
+            PlotModel = new ViewResolvingPlotModel
             {
                 Series = {_line},
                 DefaultFont = "Segoe UI",
@@ -99,7 +100,7 @@ namespace UTA.ViewModels
         }
 
 
-        public PlotModel PlotModel { get; }
+        public ViewResolvingPlotModel PlotModel { get; }
         public Criterion Criterion { get; }
         public string Title { get; }
 
