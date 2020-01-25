@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -229,6 +230,86 @@ namespace ImportModule
                 }
         }
 
+        private void CheckFunctionMonotonicity(PartialUtility partialUtility)
+        {
+            var criterionId = partialUtility.Criterion.ID;
+            var criterionDirection = partialUtility.Criterion.CriterionDirection;
+            for (var i = 1; i < partialUtility.PointsValues.Count; i++)
+            {
+                if (criterionDirection.Equals("Gain"))
+                {
+                    if (partialUtility.PointsValues[i].Y < partialUtility.PointsValues[i - 1].Y)
+                        throw new ImproperFileStructureException("criterion " + criterionId + " - Utility function has to be increasing for criterion direction '" + criterionDirection + "'.");
+                }
+                else if (criterionDirection.Equals("Cost"))
+                {
+                    if (partialUtility.PointsValues[i].Y > partialUtility.PointsValues[i - 1].Y)
+                        throw new ImproperFileStructureException("criterion " + criterionId + " - Utility function has to be descending  for criterion direction '" + criterionDirection + "'.");
+
+                }
+            }
+        }
+
+        private double CheckEdgePoints(PartialUtility partialUtility)
+        {
+            var criterionId = partialUtility.Criterion.ID;
+            var criterionMax = partialUtility.Criterion.MaxValue;
+            var criterionMin = partialUtility.Criterion.MinValue;
+
+            var lowestAbscissa = partialUtility.PointsValues[0].X;
+            var highestAbscissa = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].X;
+
+            var criterionDirection = partialUtility.Criterion.CriterionDirection;
+            var lowestAbscissaUtility = partialUtility.PointsValues[0].Y;
+            var highestAbscissaUtility = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].Y;
+
+            if (lowestAbscissa != criterionMin)
+                throw new ImproperFileStructureException("criterion " + criterionId +
+                                                         " - lowest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " and it should be the same like the lowest value for this criterion in performance_table.xml: " +
+                                                         criterionMin.ToString("G", CultureInfo.InvariantCulture) + ".");
+
+            if (highestAbscissa != criterionMax)
+                throw new ImproperFileStructureException("criterion " + criterionId +
+                                                         " - highest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " and it should be the same like the highest value for this criterion performance_table.xml: " +
+                                                         criterionMax.ToString("G", CultureInfo.InvariantCulture) + ".");
+
+            if (criterionDirection.Equals("Gain"))
+            {
+                if (lowestAbscissaUtility != 0)
+                    throw new ImproperFileStructureException("criterion " + criterionId +
+                                                             " - Lowest utility value of each function should be equal to 0 and it is " +
+                                                             lowestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
+            }
+            else if (criterionDirection.Equals("Cost"))
+            {
+                if (highestAbscissaUtility != 0)
+                    throw new ImproperFileStructureException("criterion " + criterionId +
+                                                             " - Lowest utility value of each function should be equal to 0 and it is " +
+                                                             highestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
+            }
+
+            return criterionDirection.Equals("Gain") ? highestAbscissaUtility : lowestAbscissaUtility;
+        }
+
+
+        private void ValidateUtilityFunctions()
+        {
+            double sumOfHighestUtilities = 0;
+
+            foreach (var utilityFunction in results.PartialUtilityFunctions)
+            {
+                utilityFunction.PointsValues.Sort((first, second) => first.X.CompareTo(second.X));
+                sumOfHighestUtilities += CheckEdgePoints(utilityFunction);
+                CheckFunctionMonotonicity(utilityFunction);
+            }
+
+            sumOfHighestUtilities = Math.Round(sumOfHighestUtilities, 2);
+            if(sumOfHighestUtilities != 1)
+                throw new ImproperFileStructureException("Sum of highest utilities for each criterion should be equal to 1 but it equals " + sumOfHighestUtilities.ToString("G", CultureInfo.InvariantCulture));
+        }
+
         private void LoadValueFunctions()
         {
             CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "value_functions.xml");
@@ -277,6 +358,8 @@ namespace ImportModule
                         results.PartialUtilityFunctions.Add(new PartialUtility(matchingCriterion, argumentsValues));
                     }
             }
+
+            ValidateUtilityFunctions();
         }
 
         private void LoadMethodParameters()
@@ -308,6 +391,7 @@ namespace ImportModule
             LoadCriteriaScales();
             LoadAlternatives();
             LoadPerformanceTable();
+            setMinAndMaxCriterionValues();
 
             LoadCriteriaSegments();
             LoadAlternativesRanks();
@@ -315,7 +399,6 @@ namespace ImportModule
             LoadMethodParameters();
 
             CurrentlyProcessedFile = "";
-            setMinAndMaxCriterionValues();
         }
     }
 }
