@@ -51,7 +51,7 @@
       <RowDefinition />
     </Grid.RowDefinitions>
 
-    <TextBlock Text="Reference Ranking" FontSize="18" Margin="0,0,0,8" />
+    <TextBlock Text="Reference Ranking" FontSize="{StaticResource CommonFontSize0}" Margin="0,0,0,8" />
 
     <Grid Grid.Row="1" MaxWidth="1000">
       <Grid.RowDefinitions>
@@ -166,7 +166,7 @@
                           <Border Background="Transparent">
                             <TextBlock Text="Drag alternative here..." FontSize="{StaticResource CommonFontSize2}"
                                        Foreground="{StaticResource ColorPlaceholder}" Margin="0,4,0,6"
-                                       TextAlignment="Center" />
+                                       TextAlignment="Center" TextWrapping="Wrap"/>
                           </Border>
                         </StackPanel>
                       </Border>
@@ -212,7 +212,7 @@
                     <Border Background="Transparent">
                       <TextBlock Text="Drag alternative here..." FontSize="{StaticResource CommonFontSize2}"
                                  Foreground="{StaticResource ColorPlaceholder}" Margin="6"
-                                 TextAlignment="Center" />
+                                 TextAlignment="Center" TextWrapping="Wrap"/>
                     </Border>
                   </StackPanel>
                 </Border>

@@ -348,8 +348,7 @@ namespace UTA.ViewModels
                 alternativesWithoutRanksCopy,
                 Results,
                 PreserveKendallCoefficient,
-                SettingsTabViewModel.DeltaThreshold,
-                SettingsTabViewModel.EpsilonThreshold);
+                SettingsTabViewModel.DeltaThreshold);
             _solver.Calculate();
             foreach (var partialUtility in Results.PartialUtilityFunctions)
             {
@@ -451,7 +450,7 @@ namespace UTA.ViewModels
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "UTA Input Files (*.xml; *.csv; *.utx)|*.xml;*.csv;*.utx",
+                Filter = "UTA Extended Input Files (*.xml; *.csv; *.utx)|*.xml;*.csv;*.utx",
                 InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
             if (openFileDialog.ShowDialog() != true) return;
@@ -507,8 +506,7 @@ namespace UTA.ViewModels
                     alternativesWithoutRanksCopy,
                     Results,
                     PreserveKendallCoefficient,
-                    SettingsTabViewModel.DeltaThreshold,
-                    SettingsTabViewModel.EpsilonThreshold);
+                    SettingsTabViewModel.DeltaThreshold);
                 _solver.LoadState(Results.PartialUtilityFunctions, referenceRankingDeepCopy, alternativesWithoutRanksCopy, Results);
                 foreach (var partialUtility in Results.PartialUtilityFunctions)
                 {

@@ -15,12 +15,14 @@ namespace UTA.Models
     public class Alternatives : INotifyPropertyChanged
     {
         private ObservableCollection<Alternative> _alternativesCollection;
+        private readonly Criteria _criteria;
+        private readonly ReferenceRanking _referenceRanking;
 
 
         public Alternatives(Criteria criteria, ReferenceRanking referenceRanking)
         {
-            Criteria = criteria;
-            ReferenceRanking = referenceRanking;
+            _criteria = criteria;
+            _referenceRanking = referenceRanking;
             AlternativesCollection = new ObservableCollection<Alternative>();
 
             PropertyChanged += (sender, args) =>
@@ -29,9 +31,9 @@ namespace UTA.Models
                 InitializeWatchers();
             };
 
-            Criteria.PropertyChanged += (sender, args) =>
+            _criteria.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName != nameof(Criteria.CriteriaCollection)) return;
+                if (args.PropertyName != nameof(_criteria.CriteriaCollection)) return;
                 InitializeCriterionValueNameUpdaterWatcher();
             };
 
@@ -50,9 +52,6 @@ namespace UTA.Models
             }
         }
 
-        public ReferenceRanking ReferenceRanking { get; set; }
-        public Criteria Criteria { get; set; }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void InitializeWatchers()
@@ -70,15 +69,15 @@ namespace UTA.Models
             foreach (var alternative in AlternativesCollection)
                 if (alternative.ReferenceRank != null)
                     referenceRanking[(int) alternative.ReferenceRank].Add(alternative);
-            ReferenceRanking.RankingsCollection = referenceRanking;
+            _referenceRanking.RankingsCollection = referenceRanking;
         }
 
         private void InitializeCriterionValueNameUpdaterWatcher()
         {
-            foreach (var criterion in Criteria.CriteriaCollection)
+            foreach (var criterion in _criteria.CriteriaCollection)
                 AddCriterionNamePropertyChangedHandler(criterion);
 
-            Criteria.CriteriaCollection.CollectionChanged += (sender, args) =>
+            _criteria.CriteriaCollection.CollectionChanged += (sender, args) =>
             {
                 if (args.Action == NotifyCollectionChangedAction.Add)
                 {
@@ -125,7 +124,7 @@ namespace UTA.Models
                     foreach (var criterionValue in addedAlternative.CriteriaValuesList)
                     {
                         if (criterionValue.Value == null) return;
-                        var associatedCriterion = Criteria.CriteriaCollection.First(criterion => criterion.Name == criterionValue.Name);
+                        var associatedCriterion = _criteria.CriteriaCollection.First(criterion => criterion.Name == criterionValue.Name);
                         associatedCriterion.MinValue = Math.Min(associatedCriterion.MinValue, (double) criterionValue.Value);
                         associatedCriterion.MaxValue = Math.Max(associatedCriterion.MaxValue, (double) criterionValue.Value);
                     }
@@ -137,7 +136,7 @@ namespace UTA.Models
                     {
                         var criterionValue = removedAlternative.CriteriaValuesList[i];
                         if (criterionValue.Value == null) return;
-                        var associatedCriterion = Criteria.CriteriaCollection[i];
+                        var associatedCriterion = _criteria.CriteriaCollection[i];
                         if (AlternativesCollection.Count == 0)
                         {
                             associatedCriterion.MinValue = double.MaxValue;

@@ -12,8 +12,8 @@
                       xmlns:views="clr-namespace:UTA.Views"
                       xmlns:tabModel="clr-namespace:UTA.Models.Tab"
                       x:Class="UTA.Views.MainView" mc:Ignorable="d"
-                      d:DataContext="{d:DesignInstance viewModels:MainViewModel}" Title="UTA" WindowState="Maximized"
-                      Width="1300" Height="700" MinWidth="840" MinHeight="600" Left="12" Top="12"
+                      d:DataContext="{d:DesignInstance viewModels:MainViewModel}" Title="UTA Extended" WindowState="Maximized"
+                      Width="1250" Height="700" MinWidth="850" MinHeight="600" Left="12" Top="12"
                       Closing="ApplicationClosing">
   <controls:MetroWindow.Resources>
     <!--values-->
@@ -220,7 +220,7 @@
       </MenuItem>
 
       <MenuItem Header="Help" Style="{StaticResource MenuBarItem}">
-        <MenuItem Margin="{StaticResource MenuItemTopMargin}" Header="Documentation" Click="ShowDocumentationDialog" />
+        <MenuItem Margin="{StaticResource MenuItemTopMargin}" Header="Documentation" Click="ShowDocumentation" />
         <MenuItem Margin="{StaticResource MenuItemBottomMargin}" Header="About" Click="ShowAboutDialog" />
       </MenuItem>
     </Menu>
@@ -247,8 +247,8 @@
         <ColumnDefinition Width="{StaticResource RightPanelWidth}" MinWidth="{StaticResource RightPanelMinWidth}" />
       </Grid.ColumnDefinitions>
 
-      <!--top bar-->
-      <Border Height="36" Grid.ColumnSpan="5" Background="{StaticResource ColorInterface4}" BorderThickness="1,0,1,1"
+      <!--topbar-->
+      <Border Height="36" Grid.ColumnSpan="5" Background="{StaticResource ColorInterface4}" BorderThickness="0,0,0,1"
               BorderBrush="{StaticResource ColorBorders1}" Padding="12,0,12,0">
         <DockPanel Height="28" LastChildFill="False">
           <Button Content="Calculate" Style="{StaticResource PrimaryRoundButton}" DockPanel.Dock="Left"
@@ -558,9 +558,6 @@
                     <Trigger Property="IsMouseOver" Value="True">
                       <Setter Property="Background" Value="{StaticResource ColorInterface5Hover}" />
                     </Trigger>
-                    <Trigger Property="IsMouseOver" Value="False">
-                      <Setter Property="Background" Value="{StaticResource ColorInterface5}" />
-                    </Trigger>
                     <DataTrigger
                       Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type TabItem}}}"
                       Value="True">
@@ -568,12 +565,9 @@
                       <Setter Property="BorderThickness" Value="0,0,1,0" />
                       <Setter Property="Padding" Value="0,0,0,1" />
                     </DataTrigger>
-                    <DataTrigger
-                      Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type TabItem}}}"
-                      Value="False">
-                      <Setter Property="BorderThickness" Value="0,0,1,1" />
-                    </DataTrigger>
                   </Style.Triggers>
+                  <Setter Property="BorderThickness" Value="0,0,1,1" />
+                  <Setter Property="Background" Value="{StaticResource ColorInterface5}" />
                 </Style>
 
                 <!--close button triggers-->
@@ -582,24 +576,18 @@
                     <Trigger Property="IsEnabled" Value="True">
                       <Setter Property="Visibility" Value="Visible" />
                     </Trigger>
-                    <Trigger Property="IsEnabled" Value="False">
-                      <Setter Property="Visibility" Value="Collapsed" />
-                    </Trigger>
                     <DataTrigger
                       Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type TabItem}}}"
                       Value="True">
                       <Setter Property="Template" Value="{StaticResource TransparentButtonTemplateInterface7}" />
                     </DataTrigger>
-                    <DataTrigger
-                      Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type TabItem}}}"
-                      Value="False">
-                      <Setter Property="Template" Value="{StaticResource TransparentButtonTemplateInterface3}" />
-                    </DataTrigger>
                   </Style.Triggers>
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Setter Property="Template" Value="{StaticResource TransparentButtonTemplateInterface3}" />
                 </Style>
               </DataTemplate.Resources>
 
-              <Border Width="180" BorderBrush="{StaticResource ColorBorders1}" Margin="-6,-2">
+              <Border Width="200" BorderBrush="{StaticResource ColorBorders1}" Margin="-6,-2">
                 <Border.InputBindings>
                   <MouseBinding Gesture="MiddleClick" Command="{Binding CloseCommand}" />
                 </Border.InputBindings>
@@ -693,7 +681,7 @@
                           </DataTrigger>
                         </Style.Triggers>
                         <Setter Property="Text"
-                                Value="{Binding Results.KendallCoefficient, UpdateSourceTrigger=PropertyChanged}" />
+                                Value="{Binding Results.KendallCoefficient, StringFormat=G10, UpdateSourceTrigger=PropertyChanged}" />
                       </Style>
                     </TextBlock.Style>
                   </TextBlock>

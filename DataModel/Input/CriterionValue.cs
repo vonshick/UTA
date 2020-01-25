@@ -29,6 +29,7 @@ namespace DataModel.Input
             }
         }
 
+        // null is acceptable only during initialization
         public double? Value
         {
             get => _value;
@@ -36,7 +37,6 @@ namespace DataModel.Input
             {
                 if (Nullable.Equals(value, _value)) return;
                 if (value == null) throw new ArgumentException("Value is required!");
-                // TODO: check if assigning Infinity breaks something, check if decimals work (solver)
                 _value = value;
                 OnPropertyChanged(nameof(Value));
             }

@@ -8,15 +8,15 @@
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance mainViewModel:ChartTabViewModel}">
-  <Grid>
+  <Grid Margin="12,8,12,10">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition />
     </Grid.RowDefinitions>
 
-    <TextBlock Text="{Binding Title}" FontSize="18" Margin="8,8,12,8"/>
+    <TextBlock Text="{Binding Title}" FontSize="{StaticResource CommonFontSize0}" Margin="0,0,0,8"/>
 
-    <oxy:PlotView Grid.Row="1" Name="PlotView" Model="{Binding PlotModel}" Background="Transparent" Margin="0,0,13,0">
+    <oxy:PlotView Grid.Row="1" Name="PlotView" Model="{Binding PlotModel}" Background="Transparent" Margin="0,0,1,0">
       <oxy:PlotView.DefaultTrackerTemplate>
         <ControlTemplate>
           <oxy:TrackerControl Position="{Binding Position}" BorderBrush="{StaticResource ColorBorders1}"

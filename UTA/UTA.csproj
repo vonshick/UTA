@@ -100,10 +100,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DocumentationDialogView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\ReferenceRankingTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -151,9 +147,6 @@
     <Compile Include="Models\Tab\ITab.cs" />
     <Compile Include="Models\Tab\Tab.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Views\DocumentationDialogView.xaml.cs">
-      <DependentUpon>DocumentationDialogView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ReferenceRankingTab.xaml.cs">
       <DependentUpon>ReferenceRankingTab.xaml</DependentUpon>
     </Compile>
