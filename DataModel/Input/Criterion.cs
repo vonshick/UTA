@@ -14,6 +14,8 @@ namespace DataModel.Input
         private string _description;
         private int _linearSegments;
         private string _name;
+        private double _minValue = double.MaxValue;
+        private double _maxValue = double.MinValue;
 
 
         public Criterion()
@@ -37,8 +39,19 @@ namespace DataModel.Input
         [UsedImplicitly] public static string[] CriterionDirectionTypesList { get; } = {"Gain", "Cost"};
 
         public string ID { get; set; }
-        public double MinValue { get; set; } = double.MaxValue;
-        public double MaxValue { get; set; } = double.MinValue;
+
+        public double MinValue
+        {
+            get => _minValue;
+            set => _minValue = Math.Round(value, 14);
+        }
+
+        public double MaxValue
+        {
+            get => _maxValue;
+            set => _maxValue = Math.Round(value, 14);
+        }
+
         public bool IsEnum { get; set; } = false;
 
         public string Name
@@ -49,7 +62,7 @@ namespace DataModel.Input
                 if (value == _name) return;
                 var oldValue = _name;
                 _name = value;
-                OnPropertyChangedExtended(nameof(Name), oldValue, value);
+                OnPropertyChangedExtended(nameof(Name), oldValue, _name);
             }
         }
 

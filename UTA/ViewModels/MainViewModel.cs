@@ -164,11 +164,15 @@ namespace UTA.ViewModels
 
             foreach (var viewModel in ChartTabViewModels) Tabs.Remove(viewModel);
             ChartTabViewModels.Clear();
+            Results.FinalRanking.FinalRankingCollection.Clear();
+            Results.PartialUtilityFunctions.Clear();
+            Results.KendallCoefficient = null;
 
             _currentCalculationCriteriaCopy = Criteria.GetDeepCopyOfCriteria();
             _currentCalculationAlternativesCopy = Alternatives.GetDeepCopyOfAlternatives();
             _currentCalculationReferenceRankingCopy = ReferenceRanking.GetDeepCopyOfReferenceRanking(_currentCalculationAlternativesCopy);
-            var alternativesWithoutRanks = _currentCalculationAlternativesCopy.Where(alternative => alternative.ReferenceRank == null).ToList();
+            var alternativesWithoutRanks =
+                _currentCalculationAlternativesCopy.Where(alternative => alternative.ReferenceRank == null).ToList();
             _solver = new Solver(
                 _currentCalculationReferenceRankingCopy,
                 _currentCalculationCriteriaCopy,
@@ -282,7 +286,7 @@ namespace UTA.ViewModels
         {
             var invalidCriteriaValuesNames = new List<string>();
             foreach (var criterion in criteriaList)
-                if (Math.Abs(criterion.MaxValue - criterion.MinValue) < 1E-15)
+                if (Math.Abs(criterion.MaxValue - criterion.MinValue) < 1E-14)
                     invalidCriteriaValuesNames.Add(criterion.Name);
 
             if (invalidCriteriaValuesNames.Count == 0) return true;
@@ -376,6 +380,9 @@ namespace UTA.ViewModels
             foreach (var chartTabViewModel in ChartTabViewModels)
                 Tabs.Remove(chartTabViewModel);
             ChartTabViewModels.Clear();
+            _currentCalculationReferenceRankingCopy?.Clear();
+            _currentCalculationAlternativesCopy?.Clear();
+            _currentCalculationCriteriaCopy?.Clear();
             _saveData.IsSavingWithResults = null;
             _saveData.FilePath = null;
         }
@@ -427,20 +434,19 @@ namespace UTA.ViewModels
             {
                 dataLoader.LoadData(filePath);
                 Criteria.CriteriaCollection = new ObservableCollection<Criterion>(dataLoader.CriterionList);
-                _currentCalculationCriteriaCopy = Criteria.GetDeepCopyOfCriteria();
                 // works assuming that CriteriaValuesList are initialized properly
                 Alternatives.AlternativesCollection = new ObservableCollection<Alternative>(dataLoader.AlternativeList);
+                PreserveKendallCoefficient = dataLoader.PreserveKendallCoefficient;
+                if (dataLoader.Results.PartialUtilityFunctions.Count != Criteria.CriteriaCollection.Count ||
+                    !await IsInstanceCorrectToRunCalculations()) return;
+                Results.PartialUtilityFunctions = dataLoader.Results.PartialUtilityFunctions;
+                _currentCalculationCriteriaCopy = Criteria.GetDeepCopyOfCriteria();
                 _currentCalculationAlternativesCopy = Alternatives.GetDeepCopyOfAlternatives();
                 _currentCalculationReferenceRankingCopy =
                     ReferenceRanking.GetDeepCopyOfReferenceRanking(_currentCalculationAlternativesCopy);
-                PreserveKendallCoefficient = dataLoader.PreserveKendallCoefficient;
-                Results.PartialUtilityFunctions = dataLoader.Results.PartialUtilityFunctions;
-                if (Results.PartialUtilityFunctions.Count <= 0 || !await IsInstanceCorrectToRunCalculations()) return;
 
-                _currentCalculationCriteriaCopy = Criteria.GetDeepCopyOfCriteria();
-                _currentCalculationAlternativesCopy = Alternatives.GetDeepCopyOfAlternatives();
-                _currentCalculationReferenceRankingCopy = ReferenceRanking.GetDeepCopyOfReferenceRanking(_currentCalculationAlternativesCopy);
-                var alternativesWithoutRanks = _currentCalculationAlternativesCopy.Where(alternative => alternative.ReferenceRank == null).ToList();
+                var alternativesWithoutRanks =
+                    _currentCalculationAlternativesCopy.Where(alternative => alternative.ReferenceRank == null).ToList();
                 _solver = new Solver(
                     _currentCalculationReferenceRankingCopy,
                     _currentCalculationCriteriaCopy,
@@ -502,8 +508,17 @@ namespace UTA.ViewModels
                 return;
             }
 
-            var dataSaver = new XMCDAExporter(_saveData.FilePath, new List<Criterion>(Criteria.CriteriaCollection),
-                new List<Alternative>(Alternatives.AlternativesCollection), Results, PreserveKendallCoefficient) {OverwriteFile = true};
+            var dataSaver = new XMCDAExporter(
+                    _saveData.FilePath,
+                    (bool) _saveData.IsSavingWithResults && _currentCalculationCriteriaCopy != null
+                        ? _currentCalculationCriteriaCopy
+                        : new List<Criterion>(Criteria.CriteriaCollection),
+                    (bool) _saveData.IsSavingWithResults && _currentCalculationAlternativesCopy != null
+                        ? _currentCalculationAlternativesCopy
+                        : new List<Alternative>(Alternatives.AlternativesCollection),
+                    Results,
+                    PreserveKendallCoefficient)
+                {OverwriteFile = true};
             try
             {
                 if (_saveData.IsSavingWithResults == true) dataSaver.saveSession();
@@ -572,7 +587,7 @@ namespace UTA.ViewModels
                     {
                         AffirmativeButtonText = "Yes",
                         NegativeButtonText = "Cancel",
-                        DefaultButtonFocus = MessageDialogResult.Negative,
+                        DefaultButtonFocus = MessageDialogResult.Affirmative,
                         AnimateShow = false,
                         AnimateHide = false
                     });
