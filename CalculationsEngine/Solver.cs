@@ -229,10 +229,13 @@ namespace CalculationsEngine
 
             if (indexOfPointValue < partialUtility.PointsValues.Count - 1)
             {
-                arrayOfValues[count - 1 + indexOfPointValue + 1] += partialUtility.PointsValues[indexOfPointValue].Y - value;
-                arrayOfValues[count - 1 + indexOfPointValue] -= partialUtility.PointsValues[indexOfPointValue].Y - value;
-                partialUtility.PointsValues[indexOfPointValue].Y = value;
-                Result.PartialUtilityFunctions[criterionIndex] = partialUtility;
+                if (indexOfPointValue > 0)
+                {
+                    arrayOfValues[count - 1 + indexOfPointValue + 1] += partialUtility.PointsValues[indexOfPointValue].Y - value;
+                    arrayOfValues[count - 1 + indexOfPointValue] -= partialUtility.PointsValues[indexOfPointValue].Y - value;
+                    partialUtility.PointsValues[indexOfPointValue].Y = value;
+                    Result.PartialUtilityFunctions[criterionIndex] = partialUtility;
+                }
             }
             else
             {
