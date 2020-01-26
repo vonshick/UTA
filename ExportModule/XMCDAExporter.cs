@@ -289,7 +289,7 @@ namespace ExportModule
             initializeWriter(Path.Combine(outputDirectory, "method_parameters.xml"));
             xmcdaWriter.WriteStartElement("methodParameters");
             xmcdaWriter.WriteStartElement("parameter");
-            xmcdaWriter.WriteAttributeString("id", "post_optimality");
+            xmcdaWriter.WriteAttributeString("id", "preserve_kendall_coefficient");
             xmcdaWriter.WriteStartElement("value");
             xmcdaWriter.WriteStartElement("boolean");
             xmcdaWriter.WriteString(_preserveKendalCoefficient.ToString().ToLower());
