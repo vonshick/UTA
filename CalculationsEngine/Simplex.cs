@@ -61,13 +61,13 @@ namespace CalculationsEngine
             for (var row = 0; row < simplexMatrix.GetLength(0); row++)
             for (var column = 0; column < simplexMatrix.GetLength(1); column++)
                 if (pivotRow == row)
-                    temporaryMatrix[pivotRow, column] = Math.Round(simplexMatrix[pivotRow, column] / simplexMatrix[pivotRow, pivotCol], 8);
+                    temporaryMatrix[pivotRow, column] = Math.Round(simplexMatrix[pivotRow, column] / simplexMatrix[pivotRow, pivotCol], 12);
                 else if (pivotCol == column) temporaryMatrix[row, pivotCol] = 0;
                 else
                     temporaryMatrix[row, column] =
                         Math.Round(
                             simplexMatrix[row, column] - simplexMatrix[pivotRow, column] * simplexMatrix[row, pivotCol] /
-                            simplexMatrix[pivotRow, pivotCol], 8);
+                            simplexMatrix[pivotRow, pivotCol], 12);
 
             simplexMatrix = temporaryMatrix;
         }
@@ -109,7 +109,7 @@ namespace CalculationsEngine
                     if (double.IsInfinity(CiElement))
                         CjZjInfinity[column] -= simplexMatrix[columnElement, column];
                     else
-                        CjZj[column] -= Math.Round(simplexMatrix[columnElement, column] * CiElement, 8);
+                        CjZj[column] -= Math.Round(simplexMatrix[columnElement, column] * CiElement, 12);
                 }
             }
         }
@@ -161,7 +161,7 @@ namespace CalculationsEngine
             var ratio = new double[simplexMatrix.GetLength(0)];
             for (var i = 0; i < simplexMatrix.GetLength(0); i++)
                 if (simplexMatrix[i, col] > 0)
-                    ratio[i] = Math.Round(simplexMatrix[i, simplexMatrix.GetLength(1) - 1] / simplexMatrix[i, col], 8);
+                    ratio[i] = Math.Round(simplexMatrix[i, simplexMatrix.GetLength(1) - 1] / simplexMatrix[i, col], 12);
                 else ratio[i] = double.PositiveInfinity;
 
             return ratio;

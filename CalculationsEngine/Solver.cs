@@ -354,9 +354,24 @@ namespace CalculationsEngine
                 if (deepCopyofMax[i] < deepCopyofMin[i])
                 {
                     if (deepCopyofMax[i] < arrayOfValues[i])
+                    {
                         deepCopyofMax[i] = arrayOfValues[i];
+                        //max[i] = arrayOfValues[i];
+                    }
+
                     if (deepCopyofMin[i] > arrayOfValues[i])
+                    {
                         deepCopyofMin[i] = arrayOfValues[i];
+                        //min[i] = arrayOfValues[i];
+                    }
+                    if (max[i] < arrayOfValues[i])
+                    {
+                        max[i] = arrayOfValues[i];
+                    }
+                    if (min[i] > arrayOfValues[i])
+                    {
+                        min[i] = arrayOfValues[i];
+                    }
                 }
             }
 
@@ -364,15 +379,14 @@ namespace CalculationsEngine
             {
                 double endPointsMin = 1;
                 double endPointsMax = 1;
-                double prec = 100000000;
                 foreach (var innerElement in criterionEndPoints)
                     if (element != innerElement)
                     {
-                        var val = Math.Round(max[innerElement] - arrayOfValues[innerElement], 10);
+                        var val = Math.Floor((max[innerElement] - arrayOfValues[innerElement]) * precision) / precision;
                         //var val = Math.Ceiling((max[innerElement] - arrayOfValues[innerElement]) * prec) / prec;
                         if (endPointsMax > val)
                             endPointsMax = val;
-                        val = Math.Round(arrayOfValues[innerElement] - min[innerElement], 10);
+                        val = Math.Floor((arrayOfValues[innerElement] - min[innerElement]) * precision) / precision;
                         //val = Math.Floor((arrayOfValues[innerElement] - min[innerElement]) * prec) /prec;
                         if (endPointsMin > val)
                             endPointsMin = val;
@@ -634,8 +648,13 @@ namespace CalculationsEngine
         private double CreateFinalRankingEntryUtility(double[] arrayOfValues, double[] row)
         {
             double score = 0;
-            for (var i = 0; i < arrayOfValues.Length; i++) score += arrayOfValues[i] * row[i];
-            return score;
+            var test = 0.0;
+            for (var i = 0; i < arrayOfValues.Length; i++)
+            {
+                score += arrayOfValues[i] * row[i];
+                test += arrayOfValues[i];
+            }
+            return Math.Round(score, 7);
         }
 
         private (List<PartialUtility>, double[]) MakePartialUtilityFunction(Dictionary<double, double> doubles)
