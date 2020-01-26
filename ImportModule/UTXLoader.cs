@@ -157,7 +157,7 @@ namespace ImportModule
                             criterion.LinearSegments = int.Parse(value);
                             break;
                         default:
-                           break;
+                            throw new Exception("Attribute " + attributePart.Name + " is not compatible with application.");
                     }
                 }
 

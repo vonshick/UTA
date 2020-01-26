@@ -162,7 +162,7 @@ namespace ImportModule
                         case "SEGMENTS":
                             break;
                         default:
-                            break;
+                            throw new Exception("Attribute " + attributePart.Name + " is not compatible with application.");
                     }
                 }
 
