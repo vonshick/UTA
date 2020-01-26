@@ -99,8 +99,6 @@ namespace CalculationsEngine
                 restrictionsMatrix = CalculateRestrictions(transientMatrix, finalReferenceRanking);
             }
 
-            //UpdateMinMax();
-
             var tau = CalculateKendallCoefficient(finalReferenceRanking);
             var restOfReferenceList = CreateRanking(arrayOfValues, otherAlternativesMatrix, otherAlternatives);
             var allFinalRankingEntry = finalReferenceList.Concat(restOfReferenceList).ToList();
@@ -148,12 +146,12 @@ namespace CalculationsEngine
                     count++;
                 }
             }
+
             PreserveKendallCoefficient = preserveKendallCoefficient;
             var finalReferenceList = CreateRanking(arrayOfValues, transientMatrix, arternativesList);
             var finalReferenceRanking = new FinalRanking(finalReferenceList);
             var recalculatedMatrix = RecreateMatrix(finalReferenceRanking);
             restrictionsMatrix = CalculateRestrictions(recalculatedMatrix, finalReferenceRanking);
-            //UpdateMinMax();
 
             var tau = CalculateKendallCoefficient(finalReferenceRanking);
             var restOfReferenceList = CreateRanking(arrayOfValues, otherAlternativesMatrix, otherAlternatives);
@@ -235,10 +233,6 @@ namespace CalculationsEngine
                 arrayOfValues[count - 1 + indexOfPointValue] -= partialUtility.PointsValues[indexOfPointValue].Y - value;
                 partialUtility.PointsValues[indexOfPointValue].Y = value;
                 Result.PartialUtilityFunctions[criterionIndex] = partialUtility;
-              //  if (arrayOfValues[count - 1 + indexOfPointValue + 1] < 0) 
-              //      arrayOfValues[count - 1 + indexOfPointValue + 1] = 0;
-              //  if (arrayOfValues[count - 1 + indexOfPointValue] < 0)
-               //     arrayOfValues[count - 1 + indexOfPointValue] = 0;
             }
             else
             {
@@ -252,17 +246,12 @@ namespace CalculationsEngine
                         var pointValue = Result.PartialUtilityFunctions[partialUtilityIndex].PointsValues;
                         pointValue[pointValue.Count - 1].Y += subValue;
                         arrayOfValues[currentCount - 1] += subValue;
-                       // if (arrayOfValues[currentCount - 1] < 0) arrayOfValues[currentCount - 1] = 0;
-                      //  if (pointValue[pointValue.Count - 1].Y < pointValue[pointValue.Count - 2].Y)
-                       //     pointValue[pointValue.Count - 1].Y = pointValue[pointValue.Count - 2].Y;
                         Result.PartialUtilityFunctions[partialUtilityIndex].PointsValues = pointValue;
                     }
                 }
 
                 partialUtility.PointsValues[indexOfPointValue].Y -= subValue * (Result.PartialUtilityFunctions.Count - 1);
                 arrayOfValues[count - 1 + indexOfPointValue] -= subValue * (Result.PartialUtilityFunctions.Count - 1);
-               // if (arrayOfValues[count - 1 + indexOfPointValue] < 0) 
-              //      arrayOfValues[count - 1 + indexOfPointValue] = 0;
                 Result.PartialUtilityFunctions[criterionIndex] = partialUtility;
             }
 
@@ -353,25 +342,11 @@ namespace CalculationsEngine
                 deepCopyofMin[i] = Math.Ceiling(min[i] * precision) / precision;
                 if (deepCopyofMax[i] < deepCopyofMin[i])
                 {
-                    if (deepCopyofMax[i] < arrayOfValues[i])
-                    {
-                        deepCopyofMax[i] = arrayOfValues[i];
-                        //max[i] = arrayOfValues[i];
-                    }
+                    if (deepCopyofMax[i] < arrayOfValues[i]) deepCopyofMax[i] = arrayOfValues[i];
 
-                    if (deepCopyofMin[i] > arrayOfValues[i])
-                    {
-                        deepCopyofMin[i] = arrayOfValues[i];
-                        //min[i] = arrayOfValues[i];
-                    }
-                    if (max[i] < arrayOfValues[i])
-                    {
-                        max[i] = arrayOfValues[i];
-                    }
-                    if (min[i] > arrayOfValues[i])
-                    {
-                        min[i] = arrayOfValues[i];
-                    }
+                    if (deepCopyofMin[i] > arrayOfValues[i]) deepCopyofMin[i] = arrayOfValues[i];
+                    if (max[i] < arrayOfValues[i]) max[i] = arrayOfValues[i];
+                    if (min[i] > arrayOfValues[i]) min[i] = arrayOfValues[i];
                 }
             }
 
@@ -383,11 +358,9 @@ namespace CalculationsEngine
                     if (element != innerElement)
                     {
                         var val = Math.Floor((max[innerElement] - arrayOfValues[innerElement]) * precision) / precision;
-                        //var val = Math.Ceiling((max[innerElement] - arrayOfValues[innerElement]) * prec) / prec;
                         if (endPointsMax > val)
                             endPointsMax = val;
                         val = Math.Floor((arrayOfValues[innerElement] - min[innerElement]) * precision) / precision;
-                        //val = Math.Floor((arrayOfValues[innerElement] - min[innerElement]) * prec) /prec;
                         if (endPointsMin > val)
                             endPointsMin = val;
                     }
@@ -451,18 +424,14 @@ namespace CalculationsEngine
             {
                 if (denominator > 0)
                 {
-                    //sum = Math.Floor((arrayOfValues[index] + nominator / denominator) * precision) / precision;
                     sum = arrayOfValues[index] + nominator / denominator;
-                    //min = sum > 0 ? 0 : sum;
                     min = sum;
                     max = 1;
                 }
                 else if (denominator < 0)
                 {
-                    //sum = Math.Ceiling((arrayOfValues[index] + nominator / denominator) * precision) / precision;
                     sum = arrayOfValues[index] + nominator / denominator;
                     min = -1;
-                    //max = sum < 0 ? 0 : sum;
                     max = sum;
                 }
                 else
@@ -475,22 +444,15 @@ namespace CalculationsEngine
             }
 
             nominator += DeltaThreshold - 0.0000001;
-            //nominator += DeltaThreshold;
             if (denominator > 0)
             {
-                //sum = Math.Ceiling((arrayOfValues[index] + nominator / denominator) * precision) / precision;
                 sum = arrayOfValues[index] + nominator / denominator;
-                //sum -= 0.0000001;
                 min = -1;
-                //max = sum < 0 ? 0 : sum;
                 max = sum;
             }
             else if (denominator < 0)
             {
-                //sum = Math.Floor((arrayOfValues[index] + nominator / denominator) * precision) / precision;
                 sum = arrayOfValues[index] + nominator / denominator;
-                //sum += 0.0000001;
-                //min = sum > 0 ? 0 : sum;
                 min = sum;
                 max = 1;
             }
@@ -513,29 +475,28 @@ namespace CalculationsEngine
             var matrix = new double[height, criterionFieldsCount + 1];
             var extra = -1;
             for (var row1 = 0; row1 < variantsList.Count; row1++)
-                for (var row2 = row1; row2 < variantsList.Count; row2++)
-                    if(row1 != row2)
-                        if (Math.Round(finalRanking.FinalRankingCollection[row1].Utility - finalRanking.FinalRankingCollection[row2].Utility, 8) >=
+            for (var row2 = row1; row2 < variantsList.Count; row2++)
+                if (row1 != row2)
+                    if (Math.Round(finalRanking.FinalRankingCollection[row1].Utility - finalRanking.FinalRankingCollection[row2].Utility,
+                            8) >=
                         DeltaThreshold)
-                        {
-                            extra++;
-                            for (var c = 0; c < criterionFieldsCount; c++)
-                                matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
-                            matrix[extra, matrix.GetLength(1) - 1] = DeltaThreshold;
-                            Console.WriteLine(row1 + " > " + row2);
-                        }
-                        else
-                        {
-                            Console.WriteLine(row1 + " ~ " + row2);
-                            extra++;
-                            for (var c = 0; c < criterionFieldsCount; c++)
-                                matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
-                            matrix[extra, matrix.GetLength(1) - 1] = 0;
-                            extra++;
-                            for (var c = 0; c < criterionFieldsCount; c++)
-                                matrix[extra, c] = Math.Round(recalculatedMatrix[row2, c] - recalculatedMatrix[row1, c], 7);
-                            matrix[extra, matrix.GetLength(1) - 1] = 0;
-                        }
+                    {
+                        extra++;
+                        for (var c = 0; c < criterionFieldsCount; c++)
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                        matrix[extra, matrix.GetLength(1) - 1] = DeltaThreshold;
+                    }
+                    else
+                    {
+                        extra++;
+                        for (var c = 0; c < criterionFieldsCount; c++)
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                        matrix[extra, matrix.GetLength(1) - 1] = 0;
+                        extra++;
+                        for (var c = 0; c < criterionFieldsCount; c++)
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row2, c] - recalculatedMatrix[row1, c], 7);
+                        matrix[extra, matrix.GetLength(1) - 1] = 0;
+                    }
 
             return matrix;
         }
@@ -544,8 +505,7 @@ namespace CalculationsEngine
         {
             if (number == 1)
                 return 1;
-            else
-                return number * factorialRecursion(number - 1);
+            return number * factorialRecursion(number - 1);
         }
 
         public double[,] RecreateMatrix(FinalRanking finalRanking)
@@ -648,12 +608,7 @@ namespace CalculationsEngine
         private double CreateFinalRankingEntryUtility(double[] arrayOfValues, double[] row)
         {
             double score = 0;
-            var test = 0.0;
-            for (var i = 0; i < arrayOfValues.Length; i++)
-            {
-                score += arrayOfValues[i] * row[i];
-                test += arrayOfValues[i];
-            }
+            for (var i = 0; i < arrayOfValues.Length; i++) score += arrayOfValues[i] * row[i];
             return Math.Round(score, 7);
         }
 
