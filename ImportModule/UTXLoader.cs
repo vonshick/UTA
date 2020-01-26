@@ -157,9 +157,7 @@ namespace ImportModule
                             criterion.LinearSegments = int.Parse(value);
                             break;
                         default:
-                            //TODO vonshick warnings
-                            // maybe instead of throwing exception just do nothing
-                            throw new Exception("Attribute " + attributePart.Name + " is not compatible with application.");
+                           break;
                     }
                 }
 
