@@ -239,11 +239,18 @@ namespace UTA.ViewModels
                 return false;
             }
 
-            if (!(ReferenceRanking.RankingsCollection.Count >= 2
-                  && ReferenceRanking.RankingsCollection.All(rank => rank.Count != 0)))
+            if (ReferenceRanking.RankingsCollection.Count < 2)
             {
                 ShowCalculateErrorDialog(
                     "It's required to provide at least 2 ranks in Reference Ranking filled with at least 1 alternative to begin UTA calculations.");
+                ShowTab(ReferenceRankingTabViewModel);
+                return false;
+            }
+
+            if (ReferenceRanking.RankingsCollection.Any(rank => rank.Count == 0))
+            {
+                ShowCalculateErrorDialog(
+                    "It's required to fill every rank in Reference Ranking with at least 1 alternative to begin UTA calculations.");
                 ShowTab(ReferenceRankingTabViewModel);
                 return false;
             }
