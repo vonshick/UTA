@@ -287,12 +287,14 @@ namespace ExportModule
         private void saveKendalPreserveCondition()
         {
             initializeWriter(Path.Combine(outputDirectory, "method_parameters.xml"));
-            xmcdaWriter.WriteStartElement("methodParameters");
+            xmcdaWriter.WriteStartElement("programParameters");
             xmcdaWriter.WriteStartElement("parameter");
             xmcdaWriter.WriteAttributeString("id", "preserve_kendall_coefficient");
+            xmcdaWriter.WriteStartElement("values");
             xmcdaWriter.WriteStartElement("value");
             xmcdaWriter.WriteStartElement("boolean");
             xmcdaWriter.WriteString(_preserveKendalCoefficient.ToString().ToLower());
+            xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
