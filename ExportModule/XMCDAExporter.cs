@@ -59,14 +59,14 @@ namespace ExportModule
             checkIfFileExists(Path.Combine(outputDirectory, "alternatives.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "performance_table.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "criteria_scales.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "method_parameters.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "criteria_segments.xml"));
         }
 
         private void checkIfResultFilesExists()
         {
-            checkIfFileExists(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria_segments.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "value_functions.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "method_parameters.xml"));
         }
 
         private void initializeWriter(string filePath)
@@ -309,6 +309,8 @@ namespace ExportModule
             saveCriterionScales();
             savePerformanceTable();
             saveKendalPreserveCondition();
+            saveCriteriaSegments();
+            saveReferenceRanking();
         }
 
         public void saveResults()
@@ -316,8 +318,6 @@ namespace ExportModule
             checkIfResultFilesExists();
             if (results != null)
             {
-                saveReferenceRanking();
-                saveCriteriaSegments();
                 saveValueFunctions();
             }
             else
