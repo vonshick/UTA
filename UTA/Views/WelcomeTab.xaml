@@ -49,7 +49,7 @@
         <TextBlock FontSize="{StaticResource CommonFontSize2}" TextWrapping="Wrap" Margin="12,0,0,8"
                    TextAlignment="Justify">
           Kliknięcie w wariant/kryterium w panelu bocznym przeniesie widok bezpośrednio na wybrany obiekt w odpowiedniej karcie. Owe dane edytować i usuwać można bezpośrednio z poziomu tabeli, dodawanie natomiast odbywa się przy pomocy
-          formularza w górnej części obszaru roboczego.
+          formularza w górnej części obszaru roboczego. Próg nierozróżnialności wariantów można ustawić w zakładce "Settings".
         </TextBlock>
 
         <TextBlock FontWeight="SemiBold" FontSize="{StaticResource CommonFontSize1}" Margin="0,8,0,0">
@@ -76,7 +76,7 @@
         </TextBlock>
         <TextBlock FontSize="{StaticResource CommonFontSize2}" TextWrapping="Wrap" Margin="12,0,0,8"
                    TextAlignment="Justify">
-          Po kliknięciu w niebieski przycisk "Calculate", który znajduje się się po lewej stronie górnego paska, uruchomione zostanie serce aplikacji — moduł obliczeniowy implementujący metodę wielokryterialnego porządkowania wariantów — UTA,
+          Po kliknięciu w niebieski przycisk "Calculate", który znajduje się się po lewej stronie górnego paska, uruchomione zostanie serce aplikacji&#160;—&#160;moduł obliczeniowy implementujący metodę wielokryterialnego porządkowania wariantów "UTA",
           który przy użyciu algorytmu sympleksowego wygeneruje model preferencji decydenta.
         </TextBlock>
 
