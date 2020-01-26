@@ -468,7 +468,9 @@ namespace UTA.ViewModels
             catch (Exception exception)
             {
                 ResetProgress();
-                if (exception is ImproperFileStructureException || dataLoader.CurrentlyProcessedFile.Equals(""))
+                if (exception is ImproperFileStructureException || dataLoader.CurrentlyProcessedFile == null)
+                    ShowLoadErrorDialog(exception);
+                else if (exception is ImproperFileStructureException || dataLoader.CurrentlyProcessedFile.Equals(""))
                     ShowLoadErrorDialog(exception);
                 else
                     ShowLoadErrorDialog(new Exception(Path.GetFileName(dataLoader.CurrentlyProcessedFile) +
