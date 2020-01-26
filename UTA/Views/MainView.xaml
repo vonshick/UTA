@@ -24,7 +24,7 @@
     <ItemContainerTemplate x:Key="ExpanderPlainHeaderTemplate">
       <Grid Height="{StaticResource ExpanderHeaderHeight}">
         <TextBlock Text="{TemplateBinding Content}" FontSize="{StaticResource CommonFontSize2}" FontWeight="Medium"
-                   VerticalAlignment="Center" Foreground="{StaticResource ColorFontDark}" />
+                   VerticalAlignment="Center" Foreground="Black" />
       </Grid>
     </ItemContainerTemplate>
 
@@ -33,10 +33,10 @@
         DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}}"
         Name="ExpanderWrapper" LastChildFill="False" Height="{StaticResource ExpanderHeaderHeight}">
         <TextBlock Text="{TemplateBinding Content}" DockPanel.Dock="Left" FontSize="{StaticResource CommonFontSize2}"
-                   VerticalAlignment="Center" Foreground="{StaticResource ColorFontDark}" FontWeight="Medium" />
+                   VerticalAlignment="Center" Foreground="Black" FontWeight="Medium" />
         <Button DockPanel.Dock="Right" Margin="0,0,4,0" Template="{StaticResource TransparentButtonTemplateInterface2}"
                 Click="InstancePanelAddButtonClicked">
-          <icons:PackIconMaterial Kind="Plus" Width="10" Height="10" Foreground="{StaticResource ColorFontDark}" />
+          <icons:PackIconMaterial Kind="Plus" Width="10" Height="10" Foreground="Black" />
         </Button>
       </DockPanel>
     </ItemContainerTemplate>
@@ -52,7 +52,7 @@
               </Grid.ColumnDefinitions>
 
               <icons:PackIconMaterial x:Name="Arrow" Kind="ChevronRight" Margin="9,0,0,0" Width="10" Height="10"
-                                      Foreground="{StaticResource ColorFontDark}" VerticalAlignment="Center" />
+                                      Foreground="Black" VerticalAlignment="Center" />
               <ContentPresenter Margin="8,0,0,0" Grid.Column="1" />
             </Grid>
 
@@ -499,14 +499,14 @@
                                       Template="{StaticResource ScrollableTabScrollButtonTemplate}"
                                       BorderThickness="0,0,1,1" Visibility="Collapsed">
                           <icons:PackIconMaterial Kind="ChevronLeft" Width="10" Height="10"
-                                                  Foreground="{StaticResource ColorFontDark}" />
+                                                  Foreground="Black" />
                         </RepeatButton>
                         <ScrollContentPresenter Grid.Column="1" Content="{TemplateBinding ScrollViewer.Content}" />
                         <RepeatButton Name="ScrollRightButton" Grid.Column="2" Command="ScrollBar.LineRightCommand"
                                       Template="{StaticResource ScrollableTabScrollButtonTemplate}"
                                       BorderThickness="1,0,0,1" Visibility="Collapsed" Margin="-1,0,0,0">
                           <icons:PackIconMaterial Kind="ChevronRight" Width="10" Height="10"
-                                                  Foreground="{StaticResource ColorFontDark}" />
+                                                  Foreground="Black" />
                         </RepeatButton>
                       </Grid>
                     </ControlTemplate>
@@ -599,10 +599,10 @@
                   </Grid.ColumnDefinitions>
                   <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                              FontSize="{StaticResource CommonFontSize2}"
-                             Foreground="{StaticResource ColorFontDark}" VerticalAlignment="Center" Margin="8,0,8,1" />
+                             Foreground="Black" VerticalAlignment="Center" Margin="8,0,8,1" />
                   <Button Grid.Column="1" DockPanel.Dock="Right" Command="{Binding CloseCommand}" Margin="0,0,4,0">
                     <icons:PackIconMaterial Kind="Close" Width="10" Height="10"
-                                            Foreground="{StaticResource ColorFontDark}" />
+                                            Foreground="Black" />
                   </Button>
                 </Grid>
               </Border>

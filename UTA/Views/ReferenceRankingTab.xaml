@@ -165,7 +165,7 @@
                           <ItemsPresenter />
                           <Border Background="Transparent">
                             <TextBlock Text="Drag alternative here..." FontSize="{StaticResource CommonFontSize2}"
-                                       Foreground="{StaticResource ColorPlaceholder}" Margin="0,4,0,6"
+                                       Foreground="{StaticResource ColorTertiary}" Margin="0,4,0,6"
                                        TextAlignment="Center" TextWrapping="Wrap"/>
                           </Border>
                         </StackPanel>
@@ -211,7 +211,7 @@
                     <ItemsPresenter />
                     <Border Background="Transparent">
                       <TextBlock Text="Drag alternative here..." FontSize="{StaticResource CommonFontSize2}"
-                                 Foreground="{StaticResource ColorPlaceholder}" Margin="6"
+                                 Foreground="{StaticResource ColorTertiary}" Margin="6"
                                  TextAlignment="Center" TextWrapping="Wrap"/>
                     </Border>
                   </StackPanel>
