@@ -161,8 +161,7 @@ namespace UTA.Models
                     for (var criterionIndex = 0; criterionIndex < removedAlternative.CriteriaValuesList.Count; criterionIndex++)
                     {
                         var criterionValue = removedAlternative.CriteriaValuesList[criterionIndex];
-                        if (criterionValue.Value == null) return;
-                        UpdateCriterionMinMaxValueIfNeeded((double) criterionValue.Value, criterionIndex);
+                        UpdateCriterionMinMaxValueIfNeeded(criterionValue.Value, criterionIndex);
                     }
                 }
                 else if (e.Action == NotifyCollectionChangedAction.Reset)
@@ -183,14 +182,13 @@ namespace UTA.Models
                 if (e.PropertyName != nameof(criterionValue.Value)) return;
                 var extendedArgs = (PropertyChangedExtendedEventArgs<double?>) e;
                 var oldCriterionValueValue = extendedArgs.OldValue;
-                if (oldCriterionValueValue == null || criterionValue.Value == null) return;
-                UpdateCriterionMinMaxValueIfNeeded((double) oldCriterionValueValue, criterionIndex, (double) criterionValue.Value);
+                UpdateCriterionMinMaxValueIfNeeded(oldCriterionValueValue, criterionIndex, criterionValue.Value);
             };
         }
 
         // sets new criterion min/max values when given oldCriterionValueValue was and is no longer min/max in given criterion
         // or newCriterionValueValue is new min/max
-        private void UpdateCriterionMinMaxValueIfNeeded(double oldCriterionValueValue, int criterionIndex,
+        private void UpdateCriterionMinMaxValueIfNeeded(double? oldCriterionValueValue, int criterionIndex,
             double? newCriterionValueValue = null)
         {
             var criterion = _criteria.CriteriaCollection[criterionIndex];
@@ -201,29 +199,25 @@ namespace UTA.Models
             }
             else
             {
-                if (oldCriterionValueValue <= criterion.MinValue || criterion.MinValue == double.MaxValue)
-                {
-                    criterion.MinValue = AlternativesCollection.Select(alternative =>
-                        alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
-                            ? criterionValueValue
-                            : double.MaxValue).Min();
-                }
+                if (oldCriterionValueValue != null && oldCriterionValueValue <= criterion.MinValue || criterion.MinValue == double.MaxValue)
+                    criterion.MinValue = newCriterionValueValue != null && newCriterionValueValue < criterion.MinValue
+                        ? (double) newCriterionValueValue
+                        : AlternativesCollection.Select(alternative =>
+                            alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
+                                ? criterionValueValue
+                                : double.MaxValue).Min();
                 else if (newCriterionValueValue != null && newCriterionValueValue < criterion.MinValue)
-                {
                     criterion.MinValue = (double) newCriterionValueValue;
-                }
 
-                if (oldCriterionValueValue >= criterion.MaxValue || criterion.MaxValue == double.MinValue)
-                {
-                    criterion.MaxValue = AlternativesCollection.Select(alternative =>
-                        alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
-                            ? criterionValueValue
-                            : double.MinValue).Max();
-                }
+                if (oldCriterionValueValue != null && oldCriterionValueValue >= criterion.MaxValue || criterion.MaxValue == double.MinValue)
+                    criterion.MaxValue = newCriterionValueValue != null && newCriterionValueValue > criterion.MaxValue
+                        ? (double) newCriterionValueValue
+                        : AlternativesCollection.Select(alternative =>
+                            alternative.CriteriaValuesList[criterionIndex].Value is double criterionValueValue
+                                ? criterionValueValue
+                                : double.MinValue).Max();
                 else if (newCriterionValueValue != null && newCriterionValueValue > criterion.MaxValue)
-                {
-                    criterion.MaxValue = (double)newCriterionValueValue;
-                }
+                    criterion.MaxValue = (double) newCriterionValueValue;
             }
         }
 
