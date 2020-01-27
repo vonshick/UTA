@@ -1,4 +1,22 @@
-﻿using System.Collections.Generic;
+﻿// Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
+
+// This file is part of UTA Extended.
+
+// UTA Extended is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 3 of the License, or
+// (at your option) any later version.
+
+// UTA Extended is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with UTA Extended.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -229,6 +247,86 @@ namespace ImportModule
                 }
         }
 
+        private void CheckFunctionMonotonicity(PartialUtility partialUtility)
+        {
+            var criterionId = partialUtility.Criterion.ID;
+            var criterionDirection = partialUtility.Criterion.CriterionDirection;
+            for (var i = 1; i < partialUtility.PointsValues.Count; i++)
+            {
+                if (criterionDirection.Equals("Gain"))
+                {
+                    if (partialUtility.PointsValues[i].Y < partialUtility.PointsValues[i - 1].Y)
+                        throw new ImproperFileStructureException("criterion " + criterionId + " data set is not valid for UTA - utility function has to be increasing for criterion direction '" + criterionDirection + "'.");
+                }
+                else if (criterionDirection.Equals("Cost"))
+                {
+                    if (partialUtility.PointsValues[i].Y > partialUtility.PointsValues[i - 1].Y)
+                        throw new ImproperFileStructureException("criterion " + criterionId + " data set is not valid for UTA - utility function has to be descending  for criterion direction '" + criterionDirection + "'.");
+
+                }
+            }
+        }
+
+        private double CheckEdgePoints(PartialUtility partialUtility)
+        {
+            var criterionId = partialUtility.Criterion.ID;
+            var criterionMax = partialUtility.Criterion.MaxValue;
+            var criterionMin = partialUtility.Criterion.MinValue;
+
+            var lowestAbscissa = partialUtility.PointsValues[0].X;
+            var highestAbscissa = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].X;
+
+            var criterionDirection = partialUtility.Criterion.CriterionDirection;
+            var lowestAbscissaUtility = partialUtility.PointsValues[0].Y;
+            var highestAbscissaUtility = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].Y;
+
+            if (lowestAbscissa != criterionMin)
+                throw new ImproperFileStructureException("criterion " + criterionId +
+                                                         " data set is not valid for UTA - lowest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " and it should be the same like the lowest value for this criterion in performance_table.xml: " +
+                                                         criterionMin.ToString("G", CultureInfo.InvariantCulture) + ".");
+
+            if (highestAbscissa != criterionMax)
+                throw new ImproperFileStructureException("criterion " + criterionId +
+                                                         " data set is not valid for UTA - highest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " and it should be the same like the highest value for this criterion performance_table.xml: " +
+                                                         criterionMax.ToString("G", CultureInfo.InvariantCulture) + ".");
+
+            if (criterionDirection.Equals("Gain"))
+            {
+                if (lowestAbscissaUtility != 0)
+                    throw new ImproperFileStructureException("criterion " + criterionId +
+                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
+                                                             lowestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
+            }
+            else if (criterionDirection.Equals("Cost"))
+            {
+                if (highestAbscissaUtility != 0)
+                    throw new ImproperFileStructureException("criterion " + criterionId +
+                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
+                                                             highestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
+            }
+
+            return criterionDirection.Equals("Gain") ? highestAbscissaUtility : lowestAbscissaUtility;
+        }
+
+
+        private void ValidateUtilityFunctions()
+        {
+            double sumOfHighestUtilities = 0;
+
+            foreach (var utilityFunction in results.PartialUtilityFunctions)
+            {
+                utilityFunction.PointsValues.Sort((first, second) => first.X.CompareTo(second.X));
+                sumOfHighestUtilities += CheckEdgePoints(utilityFunction);
+                CheckFunctionMonotonicity(utilityFunction);
+            }
+
+            sumOfHighestUtilities = Math.Round(sumOfHighestUtilities, 2);
+            if(sumOfHighestUtilities != 1)
+                throw new ImproperFileStructureException(" data set is not valid for UTA - sum of highest utilities for each criterion should be equal to 1 but it equals " + sumOfHighestUtilities.ToString("G", CultureInfo.InvariantCulture));
+        }
+
         private void LoadValueFunctions()
         {
             CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "value_functions.xml");
@@ -250,6 +348,7 @@ namespace ImportModule
                     }
                     else
                     {
+                        var criteria_segments = criterionFunction.FirstChild.ChildNodes.Count - 1;
                         foreach (XmlNode point in criterionFunction.FirstChild.ChildNodes)
                         {
                             var argument = double.PositiveInfinity;
@@ -265,7 +364,7 @@ namespace ImportModule
                                     value = double.Parse(coordinate.FirstChild.InnerText, CultureInfo.InvariantCulture);
                                     if (argument == double.PositiveInfinity || value == double.PositiveInfinity)
                                     {
-                                        Trace.WriteLine("Format of value_functions.xml file is not valid");
+                                        Trace.WriteLine("Format of the file is not valid");
                                         return;
                                     }
 
@@ -274,9 +373,12 @@ namespace ImportModule
                         }
 
                         var matchingCriterion = criterionList.Find(criterion => criterion.ID == criterionID);
+                        matchingCriterion.LinearSegments = criteria_segments == 0 ? 1 : criteria_segments;
                         results.PartialUtilityFunctions.Add(new PartialUtility(matchingCriterion, argumentsValues));
                     }
             }
+
+            ValidateUtilityFunctions();
         }
 
         private void LoadMethodParameters()
@@ -308,6 +410,7 @@ namespace ImportModule
             LoadCriteriaScales();
             LoadAlternatives();
             LoadPerformanceTable();
+            setMinAndMaxCriterionValues();
 
             LoadCriteriaSegments();
             LoadAlternativesRanks();
@@ -315,7 +418,6 @@ namespace ImportModule
             LoadMethodParameters();
 
             CurrentlyProcessedFile = "";
-            setMinAndMaxCriterionValues();
         }
     }
 }

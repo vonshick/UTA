@@ -1,4 +1,21 @@
-﻿using System;
+﻿// Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
+
+// This file is part of UTA Extended.
+
+// UTA Extended is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 3 of the License, or
+// (at your option) any later version.
+
+// UTA Extended is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with UTA Extended.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -59,14 +76,14 @@ namespace ExportModule
             checkIfFileExists(Path.Combine(outputDirectory, "alternatives.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "performance_table.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "criteria_scales.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "method_parameters.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "criteria_segments.xml"));
         }
 
         private void checkIfResultFilesExists()
         {
-            checkIfFileExists(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria_segments.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "value_functions.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "method_parameters.xml"));
         }
 
         private void initializeWriter(string filePath)
@@ -76,10 +93,10 @@ namespace ExportModule
             xmcdaWriter.Indentation = 2;
             xmcdaWriter.WriteStartDocument(false);
             xmcdaWriter.WriteStartElement("xmcda:XMCDA");
-            xmcdaWriter.WriteAttributeString("xmlns:xmcda", "http://www.decision-deck.org/2016/XMCDA-3.0.2");
+            xmcdaWriter.WriteAttributeString("xmlns:xmcda", "http://www.decision-deck.org/2019/XMCDA-3.1.1");
             xmcdaWriter.WriteAttributeString("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
             xmcdaWriter.WriteAttributeString("xsi:schemaLocation",
-                "http://www.decision-deck.org/2016/XMCDA-3.0.2 http://www.decision-deck.org/xmcda/_downloads/XMCDA-3.0.2.xsd");
+                "http://www.decision-deck.org/2019/XMCDA-3.1.1 http://www.decision-deck.org/xmcda/_downloads/XMCDA-3.1.1.xsd");
         }
 
         private void saveCriterions()
@@ -287,12 +304,14 @@ namespace ExportModule
         private void saveKendalPreserveCondition()
         {
             initializeWriter(Path.Combine(outputDirectory, "method_parameters.xml"));
-            xmcdaWriter.WriteStartElement("methodParameters");
+            xmcdaWriter.WriteStartElement("programParameters");
             xmcdaWriter.WriteStartElement("parameter");
-            xmcdaWriter.WriteAttributeString("id", "post_optimality");
+            xmcdaWriter.WriteAttributeString("id", "preserve_kendall_coefficient");
+            xmcdaWriter.WriteStartElement("values");
             xmcdaWriter.WriteStartElement("value");
             xmcdaWriter.WriteStartElement("boolean");
             xmcdaWriter.WriteString(_preserveKendalCoefficient.ToString().ToLower());
+            xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
             xmcdaWriter.WriteEndElement();
@@ -309,6 +328,8 @@ namespace ExportModule
             saveCriterionScales();
             savePerformanceTable();
             saveKendalPreserveCondition();
+            saveCriteriaSegments();
+            saveReferenceRanking();
         }
 
         public void saveResults()
@@ -316,8 +337,6 @@ namespace ExportModule
             checkIfResultFilesExists();
             if (results != null)
             {
-                saveReferenceRanking();
-                saveCriteriaSegments();
                 saveValueFunctions();
             }
             else
