@@ -21,6 +21,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using DataModel.Input;
 using DataModel.Results;
@@ -273,12 +274,11 @@ namespace ImportModule
             var criterionMax = partialUtility.Criterion.MaxValue;
             var criterionMin = partialUtility.Criterion.MinValue;
 
-            var lowestAbscissa = partialUtility.PointsValues[0].X;
-            var highestAbscissa = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].X;
+            var lowestAbscissa = partialUtility.PointsValues.Min(o => o.X);
+            var highestAbscissa = partialUtility.PointsValues.Max(o => o.X);
 
-            var criterionDirection = partialUtility.Criterion.CriterionDirection;
-            var lowestAbscissaUtility = partialUtility.PointsValues[0].Y;
-            var highestAbscissaUtility = partialUtility.PointsValues[partialUtility.PointsValues.Count - 1].Y;
+            var lowestUtility = partialUtility.PointsValues.Min(o => o.Y);
+            var highestUtility = partialUtility.PointsValues.Max(o => o.Y);
 
             if (lowestAbscissa != criterionMin)
                 throw new ImproperFileStructureException("criterion " + criterionId +
@@ -288,26 +288,18 @@ namespace ImportModule
 
             if (highestAbscissa != criterionMax)
                 throw new ImproperFileStructureException("criterion " + criterionId +
-                                                         " data set is not valid for UTA - highest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " data set is not valid for UTA - highest abscissa equals " + highestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
                                                          " and it should be the same like the highest value for this criterion performance_table.xml: " +
                                                          criterionMax.ToString("G", CultureInfo.InvariantCulture) + ".");
 
-            if (criterionDirection.Equals("Gain"))
-            {
-                if (lowestAbscissaUtility != 0)
-                    throw new ImproperFileStructureException("criterion " + criterionId +
-                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
-                                                             lowestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
-            }
-            else if (criterionDirection.Equals("Cost"))
-            {
-                if (highestAbscissaUtility != 0)
-                    throw new ImproperFileStructureException("criterion " + criterionId +
-                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
-                                                             highestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
-            }
 
-            return criterionDirection.Equals("Gain") ? highestAbscissaUtility : lowestAbscissaUtility;
+            if (lowestUtility != 0)
+                throw new ImproperFileStructureException("criterion " + criterionId +
+                                                         " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
+                                                         lowestUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
+
+
+            return highestUtility;
         }
 
 
@@ -320,6 +312,12 @@ namespace ImportModule
                 utilityFunction.PointsValues.Sort((first, second) => first.X.CompareTo(second.X));
                 sumOfHighestUtilities += CheckEdgePoints(utilityFunction);
                 CheckFunctionMonotonicity(utilityFunction);
+
+                utilityFunction.PointsValues.Sort((first, second) => first.Y.CompareTo(second.Y));
+                if(utilityFunction.Criterion.CriterionDirection.Equals("Cost"))
+                    utilityFunction.PointsValues.Sort((first, second) => second.X.CompareTo(first.X));
+                else
+                    utilityFunction.PointsValues.Sort((first, second) => first.X.CompareTo(second.X));
             }
 
             sumOfHighestUtilities = Math.Round(sumOfHighestUtilities, 2);
