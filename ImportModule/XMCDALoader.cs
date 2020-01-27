@@ -256,12 +256,12 @@ namespace ImportModule
                 if (criterionDirection.Equals("Gain"))
                 {
                     if (partialUtility.PointsValues[i].Y < partialUtility.PointsValues[i - 1].Y)
-                        throw new ImproperFileStructureException("criterion " + criterionId + " - Utility function has to be increasing for criterion direction '" + criterionDirection + "'.");
+                        throw new ImproperFileStructureException("criterion " + criterionId + " data set is not valid for UTA - utility function has to be increasing for criterion direction '" + criterionDirection + "'.");
                 }
                 else if (criterionDirection.Equals("Cost"))
                 {
                     if (partialUtility.PointsValues[i].Y > partialUtility.PointsValues[i - 1].Y)
-                        throw new ImproperFileStructureException("criterion " + criterionId + " - Utility function has to be descending  for criterion direction '" + criterionDirection + "'.");
+                        throw new ImproperFileStructureException("criterion " + criterionId + " data set is not valid for UTA - utility function has to be descending  for criterion direction '" + criterionDirection + "'.");
 
                 }
             }
@@ -282,13 +282,13 @@ namespace ImportModule
 
             if (lowestAbscissa != criterionMin)
                 throw new ImproperFileStructureException("criterion " + criterionId +
-                                                         " - lowest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " data set is not valid for UTA - lowest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
                                                          " and it should be the same like the lowest value for this criterion in performance_table.xml: " +
                                                          criterionMin.ToString("G", CultureInfo.InvariantCulture) + ".");
 
             if (highestAbscissa != criterionMax)
                 throw new ImproperFileStructureException("criterion " + criterionId +
-                                                         " - highest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
+                                                         " data set is not valid for UTA - highest abscissa equals " + lowestAbscissa.ToString("G", CultureInfo.InvariantCulture) +
                                                          " and it should be the same like the highest value for this criterion performance_table.xml: " +
                                                          criterionMax.ToString("G", CultureInfo.InvariantCulture) + ".");
 
@@ -296,14 +296,14 @@ namespace ImportModule
             {
                 if (lowestAbscissaUtility != 0)
                     throw new ImproperFileStructureException("criterion " + criterionId +
-                                                             " - Lowest utility value of each function should be equal to 0 and it is " +
+                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
                                                              lowestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
             }
             else if (criterionDirection.Equals("Cost"))
             {
                 if (highestAbscissaUtility != 0)
                     throw new ImproperFileStructureException("criterion " + criterionId +
-                                                             " - Lowest utility value of each function should be equal to 0 and it is " +
+                                                             " data set is not valid for UTA - lowest utility value of each function should be equal to 0 and it is " +
                                                              highestAbscissaUtility.ToString("G", CultureInfo.InvariantCulture) + ".");
             }
 
@@ -324,7 +324,7 @@ namespace ImportModule
 
             sumOfHighestUtilities = Math.Round(sumOfHighestUtilities, 2);
             if(sumOfHighestUtilities != 1)
-                throw new ImproperFileStructureException("Sum of highest utilities for each criterion should be equal to 1 but it equals " + sumOfHighestUtilities.ToString("G", CultureInfo.InvariantCulture));
+                throw new ImproperFileStructureException(" data set is not valid for UTA - sum of highest utilities for each criterion should be equal to 1 but it equals " + sumOfHighestUtilities.ToString("G", CultureInfo.InvariantCulture));
         }
 
         private void LoadValueFunctions()
@@ -348,6 +348,7 @@ namespace ImportModule
                     }
                     else
                     {
+                        var criteria_segments = criterionFunction.FirstChild.ChildNodes.Count - 1;
                         foreach (XmlNode point in criterionFunction.FirstChild.ChildNodes)
                         {
                             var argument = double.PositiveInfinity;
@@ -363,7 +364,7 @@ namespace ImportModule
                                     value = double.Parse(coordinate.FirstChild.InnerText, CultureInfo.InvariantCulture);
                                     if (argument == double.PositiveInfinity || value == double.PositiveInfinity)
                                     {
-                                        Trace.WriteLine("Format of value_functions.xml file is not valid");
+                                        Trace.WriteLine("Format of the file is not valid");
                                         return;
                                     }
 
@@ -372,6 +373,7 @@ namespace ImportModule
                         }
 
                         var matchingCriterion = criterionList.Find(criterion => criterion.ID == criterionID);
+                        matchingCriterion.LinearSegments = criteria_segments == 0 ? 1 : criteria_segments;
                         results.PartialUtilityFunctions.Add(new PartialUtility(matchingCriterion, argumentsValues));
                     }
             }
