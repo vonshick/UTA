@@ -8,7 +8,7 @@ namespace UTA.ViewModels
 {
     public class SettingsTabViewModel : Tab, INotifyPropertyChanged
     {
-        private byte _plotsPartialUtilityDecimalPlaces = 3;
+        private int _plotsPartialUtilityDecimalPlaces = 3;
         private double _deltaThreshold = 0.05;
 
 
@@ -18,7 +18,7 @@ namespace UTA.ViewModels
         }
 
 
-        public byte PlotsPartialUtilityDecimalPlaces
+        public int PlotsPartialUtilityDecimalPlaces
         {
             get => _plotsPartialUtilityDecimalPlaces;
             set
