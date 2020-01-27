@@ -29,10 +29,9 @@
         </TextBlock>
         <TextBlock FontSize="{StaticResource CommonFontSize2}" TextWrapping="Wrap" Margin="12,0,0,8"
                    TextAlignment="Justify">
-          Panele boczne można ukrywać/pokazywać przy pomocy przycisku "View" na pasku Menu. Można także zmieniać ich szerokość, zwijać i rozwijać znajdujące się w nich przewijalne listy z podglądem danych, klikając w odpowiedni nagłówek.<LineBreak/>
-          Po lewej stronie umieszczono informacje o instancji: zbiór wariantów i kryteriów. Kliknięcie w dowolny wariant/kryterium otworzy odpowiednią kartę umożliwiającą edycję danych.
-          <LineBreak />
-          Po prawej stronie umieszczono panel z podglądem rankingu referencyjnego, tworzonego w karcie "Reference Ranking", oraz rankingu wynikowego, generowanego w oparciu o wyliczony model preferencji po uruchomieniu modułu obliczeniowego.
+          Po lewej stronie umieszczono informacje o instancji: zbiór wariantów i kryteriów. Kliknięcie w dowolny wariant/kryterium otworzy odpowiednią kartę umożliwiającą edycję danych.<LineBreak />
+          Po prawej stronie umieszczono panel z podglądem rankingu referencyjnego, tworzonego w karcie "Reference Ranking", oraz rankingu wynikowego, generowanego w oparciu o wyliczony model preferencji po uruchomieniu modułu obliczeniowego.<LineBreak/>
+          Panele boczne można ukrywać/pokazywać przy pomocy przycisku "View" na pasku Menu. Można także zmieniać ich szerokość, zwijać i rozwijać znajdujące się w nich przewijalne listy z podglądem danych, klikając w odpowiedni nagłówek.
         </TextBlock>
 
         <TextBlock FontWeight="SemiBold" FontSize="{StaticResource CommonFontSize1}" Margin="0,8,0,0">

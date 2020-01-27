@@ -295,7 +295,7 @@ namespace UTA.ViewModels
             var warningMessage = "Alternatives values on the following criteria have too high precision or are the same:\n";
             foreach (var criterionName in invalidCriteriaValuesNames) warningMessage += $"{criterionName},\n";
             warningMessage +=
-                "Please provide lower precision values or at least two unique values on a whole set of alternatives values.";
+                "Please provide lower precision values or at least two unique values on a whole set of alternatives values. Maximal allowed criteria values precision is 14.";
             await _dialogCoordinator.ShowMessageAsync(this,
                 "Invalid alternatives values.",
                 warningMessage,
