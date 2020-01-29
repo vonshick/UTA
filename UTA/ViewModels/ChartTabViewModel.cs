@@ -32,7 +32,6 @@ namespace UTA.ViewModels
 {
     public class ChartTabViewModel : Tab
     {
-        private const double AxesExtraSpace = 0.025f;
         private readonly OxyColor _colorPrimary = OxyColor.FromRgb(51, 115, 242); // ColorPrimary
         private readonly Dictionary<double, PointAnnotation> _draggablePoints;
         private readonly TextAnnotation _draggablePointTooltip;
@@ -77,6 +76,9 @@ namespace UTA.ViewModels
                 Padding = new OxyThickness(8, 2, 8, 2)
             };
 
+
+            const double verticalAxisExtraSpace = 0.02;
+            var horizontalAxisExtraSpace = (Criterion.MaxValue - Criterion.MinValue) * 0.008;
             PlotModel = new ViewResolvingPlotModel
             {
                 Series = {_line},
@@ -93,10 +95,10 @@ namespace UTA.ViewModels
                         FontSize = 16,
                         MajorGridlineStyle = LineStyle.Solid,
                         MajorGridlineColor = _gridColor,
-                        AbsoluteMinimum = 0 - AxesExtraSpace,
-                        AbsoluteMaximum = 1 + AxesExtraSpace,
-                        Minimum = 0 - AxesExtraSpace,
-                        Maximum = 1 + AxesExtraSpace,
+                        AbsoluteMinimum = 0 - verticalAxisExtraSpace,
+                        AbsoluteMaximum = 1 + verticalAxisExtraSpace,
+                        Minimum = 0 - verticalAxisExtraSpace,
+                        Maximum = 1 + verticalAxisExtraSpace,
                         MajorTickSize = 8,
                         IntervalLength = 30,
                         AxisTitleDistance = 12
@@ -108,6 +110,10 @@ namespace UTA.ViewModels
                         FontSize = 16,
                         MajorGridlineStyle = LineStyle.Solid,
                         MajorGridlineColor = _gridColor,
+                        AbsoluteMinimum = Criterion.MinValue - horizontalAxisExtraSpace,
+                        AbsoluteMaximum = Criterion.MaxValue + horizontalAxisExtraSpace,
+                        Minimum = Criterion.MinValue - horizontalAxisExtraSpace,
+                        Maximum = Criterion.MaxValue + horizontalAxisExtraSpace,
                         MajorTickSize = 8,
                         AxisTitleDistance = 4
                     }
@@ -129,12 +135,6 @@ namespace UTA.ViewModels
             _line.Points.Clear();
             PlotModel.Annotations.Clear();
 
-            var extraSpace = (Criterion.MaxValue - Criterion.MinValue) * AxesExtraSpace;
-            PlotModel.Axes[1].AbsoluteMinimum = Criterion.MinValue - extraSpace;
-            PlotModel.Axes[1].AbsoluteMaximum = Criterion.MaxValue + extraSpace;
-            PlotModel.Axes[1].Minimum = Criterion.MinValue - extraSpace;
-            PlotModel.Axes[1].Maximum = Criterion.MaxValue + extraSpace;
-
             foreach (var pointValues in _pointsValues)
             {
                 pointValues.X = Math.Round(pointValues.X, 14);
@@ -147,7 +147,7 @@ namespace UTA.ViewModels
                     X = pointValues.X,
                     MinimumY = pointValues.MinValue,
                     MaximumY = pointValues.MaxValue,
-                    StrokeThickness = 4,
+                    StrokeThickness = 5,
                     Color = _rangesColor,
                     LineStyle = LineStyle.Solid
                 };

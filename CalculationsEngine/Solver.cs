@@ -47,7 +47,7 @@ namespace CalculationsEngine
 
         public Solver(List<List<Alternative>> referenceRankingList, List<Criterion> criteriaList, List<Alternative> otherAlternatives,
             Results results,
-            bool preserveKendallCoefficient = false, double deltaThreshold = 0.05, double epsilonThreshold = 0.0000001)
+            bool preserveKendallCoefficient = true, double deltaThreshold = 0.05, double epsilonThreshold = 0.0000001)
         {
             DeltaThreshold = deltaThreshold;
             EpsilonThreshold = epsilonThreshold;

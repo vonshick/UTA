@@ -46,7 +46,7 @@ namespace UTA.ViewModels
         private List<Alternative> _currentCalculationAlternativesCopy;
         private List<Criterion> _currentCalculationCriteriaCopy;
         private List<List<Alternative>> _currentCalculationReferenceRankingCopy;
-        private bool _preserveKendallCoefficient;
+        private bool _preserveKendallCoefficient = true;
         private SaveData _saveData;
         private Solver _solver;
         private ITab _tabToSelect;
