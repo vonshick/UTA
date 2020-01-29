@@ -582,7 +582,8 @@ namespace UTA.ViewModels
                 Results,
                 PreserveKendallCoefficient);
 
-            await TryToSave(true, dataSaver, directoryPath);
+            // results are available when copies had been made
+            await TryToSave(_currentCalculationCriteriaCopy != null, dataSaver, directoryPath);
         }
 
         private async Task TryToSave(bool shouldSaveWithResults, XMCDAExporter dataSaver, string directoryPath)
