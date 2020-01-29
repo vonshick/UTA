@@ -75,13 +75,34 @@ namespace UTA.Models
 
         private void SetReferenceRankingUsingReferenceRankAlternativeProperty()
         {
-            var maxRank = AlternativesCollection.Select(alternative => alternative.ReferenceRank).Max();
-            if (maxRank == null) return;
+            var alternativesSortedByReferenceRank =
+                AlternativesCollection.ToList().OrderByDescending(alternative => alternative.ReferenceRank.HasValue)
+                    .ThenBy(alternative => alternative.ReferenceRank).ToList(); // check order of nulls
+
+            // return if reference rank is empty
+            if (alternativesSortedByReferenceRank.Count > 0 && alternativesSortedByReferenceRank[0].ReferenceRank == null)
+                return;
+
+            var alternativesInRanksCounter = 0;
             var referenceRanking = new ObservableCollection<ObservableCollection<Alternative>>();
-            for (var i = 0; i <= maxRank; i++) referenceRanking.Add(new ObservableCollection<Alternative>());
-            foreach (var alternative in AlternativesCollection)
-                if (alternative.ReferenceRank != null)
-                    referenceRanking[(int) alternative.ReferenceRank].Add(alternative);
+            foreach (var alternative in alternativesSortedByReferenceRank)
+            {
+                if (alternative.ReferenceRank == null) break;
+                if (alternativesInRanksCounter < _referenceRanking.AlternativesInReferenceRankingLimit)
+                {
+                    var rank = (int) alternative.ReferenceRank;
+                    while (referenceRanking.Count <= rank) referenceRanking.Add(new ObservableCollection<Alternative>());
+                    referenceRanking[rank].Add(alternative);
+                    alternativesInRanksCounter++;
+                }
+                else
+                {
+                    alternative.ReferenceRank = null;
+                }
+            }
+
+            _referenceRanking.NumberOfAllowedAlternativesLeft =
+                _referenceRanking.AlternativesInReferenceRankingLimit - alternativesInRanksCounter;
             _referenceRanking.RankingsCollection = referenceRanking;
         }
 

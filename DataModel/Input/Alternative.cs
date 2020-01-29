@@ -58,6 +58,7 @@ namespace DataModel.Input
             }
         }
 
+        // starts from 0
         public int? ReferenceRank
         {
             get => _referenceRank;

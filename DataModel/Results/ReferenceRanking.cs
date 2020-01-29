@@ -30,6 +30,7 @@ namespace DataModel.Results
     public class ReferenceRanking : INotifyPropertyChanged
     {
         private ObservableCollection<ObservableCollection<Alternative>> _rankingsCollection;
+        private int _numberOfAllowedAlternativesLeft = 12;
 
 
         public ReferenceRanking()
@@ -55,6 +56,22 @@ namespace DataModel.Results
             }
         }
 
+        public int AlternativesInReferenceRankingLimit { get; } = 12;
+
+        public int NumberOfAllowedAlternativesLeft
+        {
+            get => _numberOfAllowedAlternativesLeft;
+            set
+            {
+                if (value == _numberOfAllowedAlternativesLeft) return;
+                _numberOfAllowedAlternativesLeft = value;
+                OnPropertyChanged(nameof(NumberOfAllowedAlternativesLeft));
+                OnPropertyChanged(nameof(IsExtendingReferenceRankAllowed));
+            }
+        }
+
+        public bool IsExtendingReferenceRankAllowed => NumberOfAllowedAlternativesLeft > 0;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
 
@@ -74,8 +91,12 @@ namespace DataModel.Results
                 {
                     var removedRank = (ObservableCollection<Alternative>) args.OldItems[0];
                     foreach (var alternative in removedRank)
+                    {
                         alternative.ReferenceRank = null;
+                        NumberOfAllowedAlternativesLeft++;
+                    }
 
+                    // decrement rank number that were below removed rank
                     for (var i = args.OldStartingIndex; i < RankingsCollection.Count; i++)
                         foreach (var alternative in RankingsCollection[i])
                             alternative.ReferenceRank = i;
@@ -87,6 +108,7 @@ namespace DataModel.Results
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
+                NumberOfAllowedAlternativesLeft--;
                 var rank = (ObservableCollection<Alternative>) sender;
                 var rankIndex = RankingsCollection.IndexOf(rank);
                 var addedAlternative = (Alternative) e.NewItems[0];
@@ -94,6 +116,7 @@ namespace DataModel.Results
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
+                NumberOfAllowedAlternativesLeft++;
                 var removedAlternative = (Alternative) e.OldItems[0];
                 removedAlternative.ReferenceRank = null;
             }
@@ -101,9 +124,8 @@ namespace DataModel.Results
 
         public void AddAlternativeToRank(Alternative alternative, int rank)
         {
-            if (RankingsCollection.Count <= rank)
-                while (RankingsCollection.Count <= rank)
-                    AddRank();
+            while (RankingsCollection.Count <= rank)
+                AddRank();
             RankingsCollection[rank].Add(alternative);
         }
 
@@ -140,6 +162,7 @@ namespace DataModel.Results
             foreach (var referenceRanking in RankingsCollection)
             foreach (var alternative in referenceRanking)
                 alternative.ReferenceRank = null;
+            NumberOfAllowedAlternativesLeft = AlternativesInReferenceRankingLimit;
             RankingsCollection.Clear();
         }
 
