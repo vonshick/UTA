@@ -137,7 +137,6 @@ namespace UTA.ViewModels
 
             foreach (var pointValues in _pointsValues)
             {
-                pointValues.X = Math.Round(pointValues.X, 14);
                 var point = new DataPoint(pointValues.X, pointValues.Y);
                 _line.Points.Add(point);
 
