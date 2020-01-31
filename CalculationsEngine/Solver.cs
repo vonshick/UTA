@@ -129,7 +129,7 @@ namespace CalculationsEngine
         }
 
         public void LoadState(List<PartialUtility> partialUtilityList, List<List<Alternative>> referenceRankingList,
-            List<Alternative> notRankedAlternatives, Results results, bool preserveKendallCoefficient = false)
+            List<Alternative> notRankedAlternatives, Results results, bool preserveKendallCoefficient = true)
         {
             Result = results;
             variantsList = new List<KeyValuePair<Alternative, int>>();

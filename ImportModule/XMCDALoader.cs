@@ -30,7 +30,7 @@ namespace ImportModule
 {
     public class XMCDALoader : DataLoader
     {
-        public bool PreserveKendallCoefficient = false;
+        public bool PreserveKendallCoefficient = true;
         private string currentlyProcessedAlternativeId;
         private string currentlyProcessedCriterionId;
         public string CurrentlyProcessedFile;
@@ -395,7 +395,7 @@ namespace ImportModule
                 if (bool.TryParse(xmlDocument.GetElementsByTagName("boolean")[0].InnerText, out preserveKendallCoefficient))
                     PreserveKendallCoefficient = preserveKendallCoefficient;
                 else
-                    PreserveKendallCoefficient = false;
+                    PreserveKendallCoefficient = true;
         }
 
         protected override void ProcessFile(string xmcdaDirectory)

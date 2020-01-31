@@ -538,7 +538,7 @@ namespace UTA.ViewModels
                 {OverwriteFile = true};
             try
             {
-                if (_saveData.IsSavingWithResults == true) dataSaver.saveSession();
+                if (_saveData.IsSavingWithResults == true && _currentCalculationCriteriaCopy != null) dataSaver.saveSession();
                 else dataSaver.saveInput();
             }
             catch (Exception exception)
@@ -582,15 +582,15 @@ namespace UTA.ViewModels
                 Results,
                 PreserveKendallCoefficient);
 
-            // results are available when copies had been made
-            await TryToSave(_currentCalculationCriteriaCopy != null, dataSaver, directoryPath);
+            await TryToSave(true, dataSaver, directoryPath);
         }
 
         private async Task TryToSave(bool shouldSaveWithResults, XMCDAExporter dataSaver, string directoryPath)
         {
             try
             {
-                if (shouldSaveWithResults) dataSaver.saveSession();
+                // results are available when copies had been made
+                if (shouldSaveWithResults && _currentCalculationCriteriaCopy != null) dataSaver.saveSession();
                 else dataSaver.saveInput();
                 _saveData.IsSavingWithResults = shouldSaveWithResults;
                 _saveData.FilePath = directoryPath;
@@ -614,7 +614,7 @@ namespace UTA.ViewModels
                     dataSaver.OverwriteFile = true;
                     try
                     {
-                        if (shouldSaveWithResults) dataSaver.saveSession();
+                        if (shouldSaveWithResults && _currentCalculationCriteriaCopy != null) dataSaver.saveSession();
                         else dataSaver.saveInput();
                         _saveData.IsSavingWithResults = shouldSaveWithResults;
                         _saveData.FilePath = directoryPath;
