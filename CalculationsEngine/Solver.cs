@@ -664,7 +664,7 @@ namespace CalculationsEngine
             var linearSegments = criterion.LinearSegments;
             var arrayOfValues = new double[criterion.LinearSegments];
             List<PartialUtilityValues> list;
-            double segmentValue = (criterion.MaxValue - criterion.MinValue) / linearSegments, currentPoint, currentValue = 0;
+            double segmentValue = Math.Round(((criterion.MaxValue - criterion.MinValue) / linearSegments), 14), currentPoint, currentValue = 0;
             if (criterion.CriterionDirection == "Gain")
             {
                 currentPoint = criterion.MinValue;
@@ -672,7 +672,7 @@ namespace CalculationsEngine
                 list = new List<PartialUtilityValues> {partialUtilityValues};
                 for (var s = 0; s < linearSegments; s++)
                 {
-                    currentPoint = criterion.MinValue + (s + 1) * segmentValue;
+                    currentPoint = s < linearSegments - 1 ? criterion.MinValue + (s + 1) * segmentValue : criterion.MaxValue;
                     arrayOfValues[s] = 0;
                     if (doubles.Keys.Contains(count))
                     {
@@ -692,14 +692,13 @@ namespace CalculationsEngine
                 list = new List<PartialUtilityValues> {partialUtilityValues};
                 for (var s = 0; s < linearSegments; s++)
                 {
-                    currentPoint = criterion.MaxValue - (s + 1) * segmentValue;
+                    currentPoint = s < linearSegments - 1 ? criterion.MaxValue - (s + 1) * segmentValue : criterion.MinValue;
                     arrayOfValues[s] = 0;
                     if (doubles.Keys.Contains(count))
                     {
                         currentValue += doubles[count];
                         arrayOfValues[s] = doubles[count];
                     }
-
                     partialUtilityValues = new PartialUtilityValues(currentPoint, currentValue);
                     list.Add(partialUtilityValues);
                     count++;
