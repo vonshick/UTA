@@ -77,8 +77,8 @@ namespace UTA.ViewModels
             };
 
 
-            const double verticalAxisExtraSpace = 0.02;
-            var horizontalAxisExtraSpace = (Criterion.MaxValue - Criterion.MinValue) * 0.008;
+            const double verticalAxisExtraSpace = 0.0001; // TODO: consider change
+            var horizontalAxisExtraSpace = (Criterion.MaxValue - Criterion.MinValue) * 0.002;
             PlotModel = new ViewResolvingPlotModel
             {
                 Series = {_line},
@@ -146,7 +146,7 @@ namespace UTA.ViewModels
                     X = pointValues.X,
                     MinimumY = pointValues.MinValue,
                     MaximumY = pointValues.MaxValue,
-                    StrokeThickness = 5,
+                    StrokeThickness = 8,
                     Color = _rangesColor,
                     LineStyle = LineStyle.Solid
                 };
