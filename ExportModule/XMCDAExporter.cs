@@ -73,10 +73,10 @@ namespace ExportModule
 
         private void checkIfInputFilesExists()
         {
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "alternatives.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "performance_table.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria_scales.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "criteria.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "alternatives.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "performance_table.xml"));
+            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "criteria_scales.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "UTA", "method_parameters.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "UTA", "alternatives_ranks.xml"));
             checkIfFileExists(Path.Combine(outputDirectory, "UTA", "criteria_segments.xml"));
@@ -102,7 +102,7 @@ namespace ExportModule
 
         private void saveCriterions()
         {
-            initializeWriter(Path.Combine(outputDirectory, "criteria.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "UTA", "criteria.xml"));
             xmcdaWriter.WriteStartElement("criteria");
 
             foreach (var criterion in criterionList)
@@ -123,7 +123,7 @@ namespace ExportModule
 
         private void saveAlternatives()
         {
-            initializeWriter(Path.Combine(outputDirectory, "alternatives.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "UTA", "alternatives.xml"));
             xmcdaWriter.WriteStartElement("alternatives");
 
             foreach (var alternative in alternativeList)
@@ -147,7 +147,7 @@ namespace ExportModule
 
         private void saveCriterionScales()
         {
-            initializeWriter(Path.Combine(outputDirectory, "criteria_scales.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "UTA", "criteria_scales.xml"));
             xmcdaWriter.WriteStartElement("criteriaScales");
 
             foreach (var criterion in criterionList)
@@ -175,7 +175,7 @@ namespace ExportModule
 
         private void savePerformanceTable()
         {
-            initializeWriter(Path.Combine(outputDirectory, "performance_table.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "UTA", "performance_table.xml"));
             xmcdaWriter.WriteStartElement("performanceTable");
             xmcdaWriter.WriteAttributeString("mcdaConcept", "REAL");
             foreach (var alternative in alternativeList)
@@ -212,7 +212,6 @@ namespace ExportModule
 
         private void saveReferenceRanking()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
             initializeWriter(Path.Combine(outputDirectory, "UTA", "alternatives_ranks.xml"));
             xmcdaWriter.WriteStartElement("alternativesValues");
 
@@ -238,7 +237,6 @@ namespace ExportModule
 
         public void saveCriteriaSegments()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
             initializeWriter(Path.Combine(outputDirectory, "UTA", "criteria_segments.xml"));
 
             xmcdaWriter.WriteStartElement("criteriaValues");
@@ -264,8 +262,6 @@ namespace ExportModule
 
         private void saveValueFunctions()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
-
             initializeWriter(Path.Combine(outputDirectory, "UTA", "value_functions.xml"));
             xmcdaWriter.WriteStartElement("criteria");
             xmcdaWriter.WriteAttributeString("mcdaConcept", "criteria");
@@ -309,7 +305,6 @@ namespace ExportModule
 
         private void saveKendalPreserveCondition()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
             initializeWriter(Path.Combine(outputDirectory, "UTA", "method_parameters.xml"));
 
             xmcdaWriter.WriteStartElement("programParameters");
@@ -331,6 +326,7 @@ namespace ExportModule
         public void saveInput()
         {
             checkIfInputFilesExists();
+            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
             saveCriterions();
             saveAlternatives();
             saveCriterionScales();

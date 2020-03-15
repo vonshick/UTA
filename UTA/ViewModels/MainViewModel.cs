@@ -409,7 +409,7 @@ namespace UTA.ViewModels
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "UTA Extended Input Files (*.xml; *.csv; *.utx)|*.xml;*.csv;*.utx",
+                Filter = "UTA Extended Input Files (*.xml; *.csv; *.utx; *.xd)|*.xml;*.csv;*.utx;*.xd",
                 InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
             if (openFileDialog.ShowDialog() != true) return;
@@ -423,6 +423,7 @@ namespace UTA.ViewModels
                 if (filePath.EndsWith(".xml")) dataLoader = new XMLLoader();
                 else if (filePath.EndsWith(".csv")) dataLoader = new CSVLoader();
                 else if (filePath.EndsWith(".utx")) dataLoader = new UTXLoader();
+                else if (filePath.EndsWith(".xd")) LoadXMCDADirectory(Path.Combine(Path.GetDirectoryName(filePath), "UTA"));
 
                 if (dataLoader == null) return;
 
@@ -446,7 +447,14 @@ namespace UTA.ViewModels
             if (!await NewSolution()) return;
 
             var filePath = openDirectoryDialog.SelectedPath;
+
+            LoadXMCDADirectory(filePath);
+        }
+
+        private void LoadXMCDADirectory(string filePath)
+        {
             var dataLoader = new XMCDALoader();
+
             try
             {
                 dataLoader.LoadData(filePath);
@@ -492,6 +500,7 @@ namespace UTA.ViewModels
                                                       (exception.Message != null ? $" - {exception.Message}" : "")));
             }
         }
+
 
         private async void ShowLoadErrorDialog(Exception exception)
         {
