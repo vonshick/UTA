@@ -451,7 +451,7 @@ namespace UTA.ViewModels
             LoadXMCDADirectory(filePath);
         }
 
-        private void LoadXMCDADirectory(string filePath)
+        private async void LoadXMCDADirectory(string filePath)
         {
             var dataLoader = new XMCDALoader();
 

@@ -38,6 +38,9 @@ namespace ImportModule
 
         private void validateInputFilesSet()
         {
+            if(!Directory.Exists(xmcdaDirectory))
+                throw new FileNotFoundException("Directory " + xmcdaDirectory + " does not exist.");
+
             ValidateFilePath(Path.Combine(xmcdaDirectory, "criteria.xml"));
             ValidateFilePath(Path.Combine(xmcdaDirectory, "alternatives.xml"));
             ValidateFilePath(Path.Combine(xmcdaDirectory, "criteria_scales.xml"));
