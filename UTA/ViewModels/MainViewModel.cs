@@ -409,7 +409,7 @@ namespace UTA.ViewModels
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "UTA Extended Input Files (*.xml; *.csv; *.utx)|*.xml;*.csv;*.utx",
+                Filter = "UTA Extended Input Files (*.xml; *.csv; *.utx; *.xd)|*.xml;*.csv;*.utx;*.xd",
                 InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
             if (openFileDialog.ShowDialog() != true) return;
@@ -423,6 +423,7 @@ namespace UTA.ViewModels
                 if (filePath.EndsWith(".xml")) dataLoader = new XMLLoader();
                 else if (filePath.EndsWith(".csv")) dataLoader = new CSVLoader();
                 else if (filePath.EndsWith(".utx")) dataLoader = new UTXLoader();
+                else if (filePath.EndsWith(".xd")) LoadXMCDADirectory(Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)));
 
                 if (dataLoader == null) return;
 
@@ -446,7 +447,14 @@ namespace UTA.ViewModels
             if (!await NewSolution()) return;
 
             var filePath = openDirectoryDialog.SelectedPath;
+
+            LoadXMCDADirectory(filePath);
+        }
+
+        private async void LoadXMCDADirectory(string filePath)
+        {
             var dataLoader = new XMCDALoader();
+
             try
             {
                 dataLoader.LoadData(filePath);
@@ -492,6 +500,7 @@ namespace UTA.ViewModels
                                                       (exception.Message != null ? $" - {exception.Message}" : "")));
             }
         }
+
 
         private async void ShowLoadErrorDialog(Exception exception)
         {
@@ -549,15 +558,16 @@ namespace UTA.ViewModels
 
         public async void SaveAsMenuItemClicked(object sender = null, RoutedEventArgs e = null)
         {
-            var saveXMCDADialog = new VistaFolderBrowserDialog
+            var saveXMCDADialog = new SaveFileDialog
             {
-                ShowNewFolderButton = true,
-                UseDescriptionForTitle = true,
-                Description = "Select XMCDA Output Directory"
+                DefaultExt = ".xd",
+                ValidateNames = true,
+                Filter = "XMCDA output indicator (.xd)|*.xd",
+                Title = "Save XMCDA output as"
             };
             if (saveXMCDADialog.ShowDialog() != true) return;
 
-            var directoryPath = saveXMCDADialog.SelectedPath;
+            var directoryPath = saveXMCDADialog.FileName;
             var dataSaver = new XMCDAExporter(directoryPath, new List<Criterion>(Criteria.CriteriaCollection),
                 new List<Alternative>(Alternatives.AlternativesCollection), Results, PreserveKendallCoefficient);
 
@@ -566,15 +576,16 @@ namespace UTA.ViewModels
 
         public async void SaveWithResultsAsMenuItemClicked(object sender = null, RoutedEventArgs e = null)
         {
-            var saveXMCDADialog = new VistaFolderBrowserDialog
+            var saveXMCDADialog = new SaveFileDialog
             {
-                ShowNewFolderButton = true,
-                UseDescriptionForTitle = true,
-                Description = "Select XMCDA Output Directory"
+                DefaultExt = ".xd",
+                ValidateNames = true,
+                Filter = "XMCDA output indicator (.xd)|*.xd",
+                Title = "Save XMCDA output as"
             };
             if (saveXMCDADialog.ShowDialog() != true) return;
 
-            var directoryPath = saveXMCDADialog.SelectedPath;
+            var directoryPath = saveXMCDADialog.FileName;
             var dataSaver = new XMCDAExporter(
                 directoryPath,
                 _currentCalculationCriteriaCopy ?? new List<Criterion>(Criteria.CriteriaCollection),

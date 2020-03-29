@@ -36,13 +36,16 @@ namespace ExportModule
         private readonly Results results;
         private XmlTextWriter xmcdaWriter;
         private readonly bool _preserveKendalCoefficient;
+        private string _xdFilePath;
 
-        public XMCDAExporter(string outputDirectory,
+        public XMCDAExporter(string xdFilePath,
             List<Criterion> criterionList,
             List<Alternative> alternativeList,
             Results results, 
             bool preserveKendallCoefficient)
         {
+            this._xdFilePath = xdFilePath;
+            this.outputDirectory = Path.Combine(Path.GetDirectoryName(xdFilePath), Path.GetFileNameWithoutExtension(xdFilePath));
             OverwriteFile = false;
             this.outputDirectory = outputDirectory;
             this.criterionList = criterionList;
@@ -51,40 +54,18 @@ namespace ExportModule
             _preserveKendalCoefficient = preserveKendallCoefficient;
         }
 
-        public XMCDAExporter(string outputDirectory,
+        public XMCDAExporter(string xdFilePath,
             List<Criterion> criterionList,
             List<Alternative> alternativeList,
             bool preserveKendallCoefficient)
         {
+            this._xdFilePath = xdFilePath;
+            this.outputDirectory = Path.Combine(Path.GetDirectoryName(xdFilePath), Path.GetFileNameWithoutExtension(xdFilePath));
             OverwriteFile = false;
             this.outputDirectory = outputDirectory;
             this.criterionList = criterionList;
             this.alternativeList = alternativeList;
             _preserveKendalCoefficient = preserveKendallCoefficient;
-        }
-
-        private void checkIfFileExists(string path)
-        {
-            if (!OverwriteFile)
-                if (File.Exists(path))
-                    throw new XmcdaFileExistsException(
-                        "File " + Path.GetFileName(path) + " already exists. Would you like to overwrite it?");
-        }
-
-        private void checkIfInputFilesExists()
-        {
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "alternatives.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "performance_table.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "criteria_scales.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "method_parameters.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "alternatives_ranks.xml"));
-            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "criteria_segments.xml"));
-        }
-
-        private void checkIfResultFilesExists()
-        {
-            checkIfFileExists(Path.Combine(outputDirectory, "UTA", "value_functions.xml"));
         }
 
         private void initializeWriter(string filePath)
@@ -212,8 +193,7 @@ namespace ExportModule
 
         private void saveReferenceRanking()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
-            initializeWriter(Path.Combine(outputDirectory, "UTA", "alternatives_ranks.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "alternatives_ranks.xml"));
             xmcdaWriter.WriteStartElement("alternativesValues");
 
             foreach (var alternative in alternativeList)
@@ -238,8 +218,7 @@ namespace ExportModule
 
         public void saveCriteriaSegments()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
-            initializeWriter(Path.Combine(outputDirectory, "UTA", "criteria_segments.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "criteria_segments.xml"));
 
             xmcdaWriter.WriteStartElement("criteriaValues");
 
@@ -264,9 +243,7 @@ namespace ExportModule
 
         private void saveValueFunctions()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
-
-            initializeWriter(Path.Combine(outputDirectory, "UTA", "value_functions.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "value_functions.xml"));
             xmcdaWriter.WriteStartElement("criteria");
             xmcdaWriter.WriteAttributeString("mcdaConcept", "criteria");
 
@@ -309,8 +286,7 @@ namespace ExportModule
 
         private void saveKendalPreserveCondition()
         {
-            Directory.CreateDirectory(Path.Combine(outputDirectory, "UTA"));
-            initializeWriter(Path.Combine(outputDirectory, "UTA", "method_parameters.xml"));
+            initializeWriter(Path.Combine(outputDirectory, "method_parameters.xml"));
 
             xmcdaWriter.WriteStartElement("programParameters");
             xmcdaWriter.WriteStartElement("parameter");
@@ -330,7 +306,9 @@ namespace ExportModule
 
         public void saveInput()
         {
-            checkIfInputFilesExists();
+            Directory.CreateDirectory(Path.Combine(outputDirectory));
+            File.Create(_xdFilePath);
+
             saveCriterions();
             saveAlternatives();
             saveCriterionScales();
@@ -342,7 +320,6 @@ namespace ExportModule
 
         public void saveResults()
         {
-            checkIfResultFilesExists();
             if (results != null)
             {
                 saveValueFunctions();

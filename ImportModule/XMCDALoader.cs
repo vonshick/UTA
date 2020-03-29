@@ -38,6 +38,9 @@ namespace ImportModule
 
         private void validateInputFilesSet()
         {
+            if(!Directory.Exists(xmcdaDirectory))
+                throw new FileNotFoundException("Directory " + xmcdaDirectory + " does not exist.");
+
             ValidateFilePath(Path.Combine(xmcdaDirectory, "criteria.xml"));
             ValidateFilePath(Path.Combine(xmcdaDirectory, "alternatives.xml"));
             ValidateFilePath(Path.Combine(xmcdaDirectory, "criteria_scales.xml"));
@@ -195,7 +198,7 @@ namespace ImportModule
 
         private void LoadAlternativesRanks()
         {
-            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "UTA", "alternatives_ranks.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "alternatives_ranks.xml");
 
             if (!File.Exists(CurrentlyProcessedFile))
                 return;
@@ -225,7 +228,7 @@ namespace ImportModule
 
         private void LoadCriteriaSegments()
         {
-            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "UTA", "criteria_segments.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "criteria_segments.xml");
 
             if (!File.Exists(CurrentlyProcessedFile))
                 return;
@@ -327,7 +330,7 @@ namespace ImportModule
 
         private void LoadValueFunctions()
         {
-            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "UTA", "value_functions.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "value_functions.xml");
 
             if (!File.Exists(CurrentlyProcessedFile))
                 return;
@@ -381,7 +384,7 @@ namespace ImportModule
 
         private void LoadMethodParameters()
         {
-            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "UTA", "method_parameters.xml");
+            CurrentlyProcessedFile = Path.Combine(xmcdaDirectory, "method_parameters.xml");
 
             if (!File.Exists(CurrentlyProcessedFile))
                 return;
