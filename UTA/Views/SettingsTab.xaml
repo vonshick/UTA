@@ -42,6 +42,19 @@
         </StackPanel>
 
         <StackPanel Margin="0,0,0,20">
+          <TextBlock Text="Epsilon threshold for discrimination of zero" FontSize="{StaticResource CommonFontSize1}"
+                     Margin="0,0,0,2" TextWrapping="Wrap" />
+          <TextBlock
+            Text="Controls the threshold value of epsilon for discrimination of zero in model exploitation."
+            Foreground="{StaticResource ColorSecondary}"  FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4"
+            TextWrapping="Wrap"  />
+          <controls:NumericUpDown
+            Value="{Binding EpsilonThreshold, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+            Minimum="0" Maximum="1" NumericInputMode="All" StringFormat="G15" Interval="0.0000001" MinWidth="124"
+            HorizontalAlignment="Left" FontSize="{StaticResource CommonFontSize2}" />
+        </StackPanel>
+
+        <StackPanel Margin="0,0,0,20">
           <TextBlock Text="Show Welcome tab on startup" FontSize="{StaticResource CommonFontSize1}"
                      Margin="0,0,0,2" TextWrapping="Wrap" />
           <CheckBox IsChecked="{Binding ShowWelcomeTabOnStart, UpdateSourceTrigger=PropertyChanged}">
