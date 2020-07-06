@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
- <!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
+<!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
 
  This file is part of UTA Extended.
 
@@ -15,7 +15,6 @@
 
  You should have received a copy of the GNU General Public License
  along with UTA Extended.  If not, see <http://www.gnu.org/licenses/>. -->
-
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>

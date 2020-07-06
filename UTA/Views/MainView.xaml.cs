@@ -45,7 +45,10 @@ namespace UTA.Views
             InitializeComponent();
             DataContext = _viewmodel;
 
-            Loaded += (sender, args) => { _viewmodel.ShowTab(_viewmodel.WelcomeTabViewModel); };
+            Loaded += (sender, args) =>
+            {
+                if (_viewmodel.SettingsTabViewModel.ShowWelcomeTabOnStart) _viewmodel.ShowTab(_viewmodel.WelcomeTabViewModel);
+            };
 
             _viewmodel.ChartTabViewModels.CollectionChanged += ChartTabsCollectionChanged;
             var tabViewSource = CollectionViewSource.GetDefaultView(TabControl.Items);

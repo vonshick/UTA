@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UTA.Annotations;
 using UTA.Models.Tab;
+using UTA.Properties;
 
 namespace UTA.ViewModels
 {
@@ -68,6 +69,16 @@ namespace UTA.ViewModels
                 if (value < 0 || value > 1) throw new ArgumentException("Value must be between 0 - 1 inclusive.");
                 _epsilonThreshold = value;
                 OnPropertyChanged(nameof(EpsilonThreshold));
+            }
+        }
+
+        public bool ShowWelcomeTabOnStart
+        {
+            get => Settings.Default.ShowWelcomeTabOnStart;
+            set
+            {
+                Settings.Default.ShowWelcomeTabOnStart = value;
+                Settings.Default.Save();
             }
         }
 
