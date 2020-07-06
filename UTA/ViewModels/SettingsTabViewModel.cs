@@ -25,9 +25,9 @@ namespace UTA.ViewModels
 {
     public class SettingsTabViewModel : Tab, INotifyPropertyChanged
     {
-        private int _plotsPartialUtilityDecimalPlaces = 3;
         private double _deltaThreshold = 0.05;
-
+        private double _epsilonThreshold = 0.0000001;
+        private int _plotsPartialUtilityDecimalPlaces = 3;
 
         public SettingsTabViewModel()
         {
@@ -58,6 +58,19 @@ namespace UTA.ViewModels
                 OnPropertyChanged(nameof(DeltaThreshold));
             }
         }
+
+        public double EpsilonThreshold
+        {
+            get => _epsilonThreshold;
+            set
+            {
+                if (value.Equals(_epsilonThreshold)) return;
+                if (value < 0 || value > 1) throw new ArgumentException("Value must be between 0 - 1 inclusive.");
+                _epsilonThreshold = value;
+                OnPropertyChanged(nameof(EpsilonThreshold));
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

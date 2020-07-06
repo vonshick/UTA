@@ -196,7 +196,9 @@ namespace UTA.ViewModels
                 alternativesWithoutRanks,
                 Results,
                 PreserveKendallCoefficient,
-                SettingsTabViewModel.DeltaThreshold);
+                SettingsTabViewModel.DeltaThreshold,
+                SettingsTabViewModel.EpsilonThreshold
+            );
             _solver.Calculate();
 
             foreach (var partialUtility in Results.PartialUtilityFunctions)
@@ -478,8 +480,11 @@ namespace UTA.ViewModels
                     alternativesWithoutRanks,
                     Results,
                     PreserveKendallCoefficient,
-                    SettingsTabViewModel.DeltaThreshold);
-                _solver.LoadState(Results.PartialUtilityFunctions, _currentCalculationReferenceRankingCopy, alternativesWithoutRanks, Results);
+                    SettingsTabViewModel.DeltaThreshold,
+                    SettingsTabViewModel.EpsilonThreshold
+                    );
+                _solver.LoadState(Results.PartialUtilityFunctions, _currentCalculationReferenceRankingCopy, alternativesWithoutRanks,
+                    Results);
 
                 foreach (var partialUtility in Results.PartialUtilityFunctions)
                 {

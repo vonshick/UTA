@@ -1,4 +1,4 @@
-﻿ <!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
+﻿<!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
 
  This file is part of UTA Extended.
 
@@ -33,11 +33,25 @@
                      Margin="0,0,0,2" TextWrapping="Wrap" />
           <TextBlock
             Text="Controls the value of delta for indifference threshold in calculations. It is the absolute value of the utilities subtraction."
-            Foreground="{StaticResource ColorSecondary}" FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4" TextWrapping="Wrap" />
+            Foreground="{StaticResource ColorSecondary}" FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4"
+            TextWrapping="Wrap" />
           <controls:NumericUpDown
             Value="{Binding DeltaThreshold, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
             Minimum="0" Maximum="1" NumericInputMode="All" Interval="0.01" MinWidth="124" StringFormat="G15"
-            HorizontalAlignment="Left" FontSize="{StaticResource CommonFontSize2}"/>
+            HorizontalAlignment="Left" FontSize="{StaticResource CommonFontSize2}" />
+        </StackPanel>
+
+        <StackPanel Margin="0,0,0,20">
+          <TextBlock Text="Epsilon threshold for discrimination of zero" FontSize="{StaticResource CommonFontSize1}"
+                     Margin="0,0,0,2" TextWrapping="Wrap" />
+          <TextBlock
+            Text="Controls the threshold value of epsilon for discrimination of zero in model exploitation."
+            Foreground="{StaticResource ColorSecondary}"  FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4"
+            TextWrapping="Wrap"  />
+          <controls:NumericUpDown
+            Value="{Binding EpsilonThreshold, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+            Minimum="0" Maximum="1" NumericInputMode="All" StringFormat="G15" Interval="0.0000001" MinWidth="124"
+            HorizontalAlignment="Left" FontSize="{StaticResource CommonFontSize2}" />
         </StackPanel>
 
         <StackPanel Margin="0,0,0,20">
@@ -45,10 +59,12 @@
                      Margin="0,0,0,2" TextWrapping="Wrap" />
           <TextBlock
             Text="Controls the number of decimal places in plots' draggable points' partial utility value tooltip."
-            Foreground="{StaticResource ColorSecondary}" FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4" TextWrapping="Wrap" />
+            Foreground="{StaticResource ColorSecondary}" FontSize="{StaticResource CommonFontSize2}" Margin="0,0,0,4"
+            TextWrapping="Wrap" />
           <controls:NumericUpDown
             Value="{Binding PlotsPartialUtilityDecimalPlaces, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
-            Minimum="1" Maximum="7" NumericInputMode="Numbers" MinWidth="124" HorizontalAlignment="Left" FontSize="{StaticResource CommonFontSize2}"/>
+            Minimum="1" Maximum="7" NumericInputMode="Numbers" MinWidth="124" HorizontalAlignment="Left"
+            FontSize="{StaticResource CommonFontSize2}" />
         </StackPanel>
       </StackPanel>
     </ScrollViewer>
