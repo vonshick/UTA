@@ -181,9 +181,7 @@ namespace UTA.ViewModels
 
             foreach (var viewModel in ChartTabViewModels) Tabs.Remove(viewModel);
             ChartTabViewModels.Clear();
-            Results.FinalRanking.FinalRankingCollection.Clear();
-            Results.PartialUtilityFunctions.Clear();
-            Results.KendallCoefficient = null;
+            Results.Reset();
 
             _currentCalculationCriteriaCopy = Criteria.GetDeepCopyOfCriteria();
             _currentCalculationAlternativesCopy = Alternatives.GetDeepCopyOfAlternatives();
@@ -201,14 +199,7 @@ namespace UTA.ViewModels
             );
             _solver.Calculate();
 
-            foreach (var partialUtility in Results.PartialUtilityFunctions)
-            {
-                var viewModel = new ChartTabViewModel(_solver, partialUtility, SettingsTabViewModel, RefreshCharts);
-                ChartTabViewModels.Add(viewModel);
-                Tabs.Add(viewModel);
-            }
-
-            if (ChartTabViewModels.Count > 0) ShowTab(ChartTabViewModels[0]);
+            LoadAndShowCharts();
         }
 
         private async Task<MessageDialogResult> ShowLosingProgressWarning()
@@ -294,6 +285,20 @@ namespace UTA.ViewModels
                     AnimateShow = false,
                     AnimateHide = false
                 });
+        }
+
+        private void LoadAndShowCharts()
+        {
+            if (SettingsTabViewModel.DisplayChartsInSeparateTabs)
+                foreach (var partialUtility in Results.PartialUtilityFunctions)
+                    ChartTabViewModels.Add(new ChartTabViewModel(_solver, new List<PartialUtility> { partialUtility },
+                        SettingsTabViewModel, RefreshCharts));
+            else
+                ChartTabViewModels.Add(new ChartTabViewModel(_solver, Results.PartialUtilityFunctions, SettingsTabViewModel,
+                    RefreshCharts));
+
+            foreach (var chartTabViewModel in ChartTabViewModels) Tabs.Add(chartTabViewModel);
+            if (ChartTabViewModels.Count > 0) ShowTab(ChartTabViewModels[0]);
         }
 
         private void AddTabIfNeeded(ITab tab)
@@ -425,7 +430,8 @@ namespace UTA.ViewModels
                 if (filePath.EndsWith(".xml")) dataLoader = new XMLLoader();
                 else if (filePath.EndsWith(".csv")) dataLoader = new CSVLoader();
                 else if (filePath.EndsWith(".utx")) dataLoader = new UTXLoader();
-                else if (filePath.EndsWith(".xd")) LoadXMCDADirectory(Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)));
+                else if (filePath.EndsWith(".xd"))
+                    LoadXMCDADirectory(Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)));
 
                 if (dataLoader == null) return;
 
@@ -482,18 +488,11 @@ namespace UTA.ViewModels
                     PreserveKendallCoefficient,
                     SettingsTabViewModel.DeltaThreshold,
                     SettingsTabViewModel.EpsilonThreshold
-                    );
+                );
                 _solver.LoadState(Results.PartialUtilityFunctions, _currentCalculationReferenceRankingCopy, alternativesWithoutRanks,
                     Results);
 
-                foreach (var partialUtility in Results.PartialUtilityFunctions)
-                {
-                    var viewModel = new ChartTabViewModel(_solver, partialUtility, SettingsTabViewModel, RefreshCharts);
-                    ChartTabViewModels.Add(viewModel);
-                    Tabs.Add(viewModel);
-                }
-
-                if (ChartTabViewModels.Count > 0) ShowTab(ChartTabViewModels[0]);
+                LoadAndShowCharts();
             }
             catch (Exception exception)
             {

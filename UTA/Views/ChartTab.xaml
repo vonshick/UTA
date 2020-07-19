@@ -1,4 +1,4 @@
-﻿ <!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
+﻿<!-- Copyright © 2020 Tomasz Pućka, Piotr Hełminiak, Marcin Rochowiak, Jakub Wąsik
 
  This file is part of UTA Extended.
 
@@ -25,34 +25,98 @@
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance mainViewModel:ChartTabViewModel}">
-  <Grid Margin="12,8,12,10">
+  <Grid Name="ChartTabRoot">
+    <Grid.Resources>
+      <Style TargetType="{x:Type oxy:PlotView}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Margin" Value="0,0,1,0" />
+        <Setter Property="DefaultTrackerTemplate">
+          <Setter.Value>
+            <ControlTemplate>
+              <oxy:TrackerControl Position="{Binding Position}" BorderBrush="{StaticResource ColorBorders1}"
+                                  Background="#D0FCFCFC">
+                <oxy:TrackerControl.Content>
+                  <DockPanel Margin="8,2">
+                    <StackPanel Margin="0,0,8,0">
+                      <TextBlock Text="{Binding XAxis.Title}" />
+                      <TextBlock Text="{Binding YAxis.Title}" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right">
+                      <TextBlock Text="{Binding DataPoint.X, StringFormat=F15}" />
+                      <TextBlock Text="{Binding DataPoint.Y, StringFormat=F15}" />
+                    </StackPanel>
+                  </DockPanel>
+                </oxy:TrackerControl.Content>
+              </oxy:TrackerControl>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </Grid.Resources>
+
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition />
     </Grid.RowDefinitions>
 
-    <TextBlock Text="{Binding Title}" FontSize="{StaticResource CommonFontSize0}" Margin="0,0,0,8"/>
+    <TextBlock Text="{Binding Title}" FontSize="{StaticResource CommonFontSize0}">
+      <TextBlock.Style>
+        <Style TargetType="{x:Type TextBlock}">
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding ManagesSinglePUFunction}" Value="True">
+              <Setter Property="Margin" Value="12,8,12,12" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ManagesSinglePUFunction}" Value="False">
+              <Setter Property="Margin" Value="12,8,12,6" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </TextBlock.Style>
+    </TextBlock>
 
-    <oxy:PlotView Grid.Row="1" Name="PlotView" Model="{Binding PlotModel}" Background="Transparent" Margin="0,0,1,0">
-      <oxy:PlotView.DefaultTrackerTemplate>
-        <ControlTemplate>
-          <oxy:TrackerControl Position="{Binding Position}" BorderBrush="{StaticResource ColorBorders1}"
-                              Background="#D0FCFCFC">
-            <oxy:TrackerControl.Content>
-              <DockPanel Margin="8,2">
-                <StackPanel Margin="0,0,8,0">
-                  <TextBlock Text="{Binding XAxis.Title}" />
-                  <TextBlock Text="{Binding YAxis.Title}" />
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Right">
-                  <TextBlock Text="{Binding DataPoint.X, StringFormat=F15}" />
-                  <TextBlock Text="{Binding DataPoint.Y, StringFormat=F15}" />
-                </StackPanel>
-              </DockPanel>
-            </oxy:TrackerControl.Content>
-          </oxy:TrackerControl>
-        </ControlTemplate>
-      </oxy:PlotView.DefaultTrackerTemplate>
-    </oxy:PlotView>
+    <ItemsControl Grid.Row="1" ItemsSource="{Binding PlotModels, UpdateSourceTrigger=PropertyChanged}"
+                  Focusable="False">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="{Binding NumberOfColumns}" Rows="{Binding NumberOfRows}" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border BorderBrush="{StaticResource ColorBorders3}" Padding="6,1,16,1">
+            <Border.Style>
+              <Style TargetType="{x:Type Border}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding ElementName=ChartTabRoot, Path=DataContext.ManagesSinglePUFunction}"
+                               Value="True">
+                    <Setter Property="BorderThickness" Value="0" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding ElementName=ChartTabRoot, Path=DataContext.ManagesSinglePUFunction}"
+                               Value="False">
+                    <Setter Property="BorderThickness" Value="1" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Border.Style>
+
+            <Border>
+              <Border.Style>
+                <Style TargetType="{x:Type Border}">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding ElementName=ChartTabRoot, Path=DataContext.AreChartsDense}"
+                                 Value="True">
+                      <Setter Property="Margin" Value="-6,4,0,0" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+
+              <oxy:PlotView Model="{Binding}" />
+            </Border>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
   </Grid>
 </UserControl>

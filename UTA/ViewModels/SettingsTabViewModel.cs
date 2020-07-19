@@ -82,6 +82,16 @@ namespace UTA.ViewModels
             }
         }
 
+        public bool DisplayChartsInSeparateTabs
+        {
+            get => Settings.Default.DisplayChartsInSeparateTabs;
+            set
+            {
+                Settings.Default.DisplayChartsInSeparateTabs = value;
+                Settings.Default.Save();
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

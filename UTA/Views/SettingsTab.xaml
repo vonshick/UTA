@@ -55,6 +55,17 @@
         </StackPanel>
 
         <StackPanel Margin="0,0,0,20">
+          <TextBlock Text="Display partial utility functions in separate tabs" FontSize="{StaticResource CommonFontSize1}"
+                     Margin="0,0,0,2" TextWrapping="Wrap" />
+          <CheckBox IsChecked="{Binding DisplayChartsInSeparateTabs, UpdateSourceTrigger=PropertyChanged}">
+            <TextBlock
+              Text="Controls whether partial utility functions charts should be displayed in separate tabs or single tab."
+              Foreground="{StaticResource ColorSecondary}" FontSize="{StaticResource CommonFontSize2}"
+              TextWrapping="Wrap" />
+          </CheckBox>
+        </StackPanel>
+
+        <StackPanel Margin="0,0,0,20">
           <TextBlock Text="Show Welcome tab on startup" FontSize="{StaticResource CommonFontSize1}"
                      Margin="0,0,0,2" TextWrapping="Wrap" />
           <CheckBox IsChecked="{Binding ShowWelcomeTabOnStart, UpdateSourceTrigger=PropertyChanged}">

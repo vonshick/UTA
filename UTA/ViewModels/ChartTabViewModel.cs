@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using CalculationsEngine;
 using DataModel.Input;
@@ -32,153 +33,198 @@ namespace UTA.ViewModels
 {
     public class ChartTabViewModel : Tab
     {
+        private readonly List<Dictionary<double, PointAnnotation>> _chartsDraggablePoints;
+        private readonly List<TextAnnotation> _chartsDraggablePointTooltip;
+        private readonly List<PartialUtility> _chartsPartialUtilities;
+        private readonly List<List<PartialUtilityValues>> _chartsPointsValues;
+        private readonly List<Dictionary<double, LineAnnotation>> _chartsRanges;
         private readonly OxyColor _colorPrimary = OxyColor.FromRgb(51, 115, 242); // ColorPrimary
-        private readonly Dictionary<double, PointAnnotation> _draggablePoints;
-        private readonly TextAnnotation _draggablePointTooltip;
+        private readonly List<Criterion> _criteria;
         private readonly OxyColor _draggablePointTooltipFillColor = OxyColor.FromArgb(208, 252, 252, 252); // ColorInterface7
         private readonly OxyColor _draggablePointTooltipStrokeColor = OxyColor.FromRgb(170, 170, 170); // ColorBorders1
         private readonly OxyColor _gridColor = OxyColor.FromRgb(240, 240, 240); // ColorInterface5
-        private readonly LineSeries _line;
         private readonly OxyColor _lineColor = OxyColor.FromRgb(110, 110, 110); // ColorSecondary
-        private readonly PartialUtility _partialUtility;
-        private readonly List<PartialUtilityValues> _pointsValues;
-        private readonly Dictionary<double, LineAnnotation> _ranges;
         private readonly OxyColor _rangesColor = OxyColor.FromRgb(210, 210, 210); // ColorInterface2
         private readonly Action _refreshCharts;
         private readonly SettingsTabViewModel _settings;
         private readonly Solver _solver;
 
-        public ChartTabViewModel(Solver solver, PartialUtility partialUtility, SettingsTabViewModel settingsTabViewModel,
+        public ChartTabViewModel(Solver solver, List<PartialUtility> chartsPartialUtilities, SettingsTabViewModel settingsTabViewModel,
             Action refreshCharts)
         {
             _solver = solver;
-            _partialUtility = partialUtility;
-            Criterion = _partialUtility.Criterion;
-            _pointsValues = new List<PartialUtilityValues>(_partialUtility.PointsValues);
+            _chartsPartialUtilities = chartsPartialUtilities;
+            _criteria = _chartsPartialUtilities.Select(utility => utility.Criterion).ToList();
+            _chartsPointsValues = _chartsPartialUtilities.Select(utility => utility.PointsValues).ToList();
             _settings = settingsTabViewModel;
             _refreshCharts = refreshCharts;
-            Name = $"{Criterion.Name} - Utility";
-            Title = $"{Criterion.Name} - Partial Utility Function";
-            _ranges = new Dictionary<double, LineAnnotation>();
-            _draggablePoints = new Dictionary<double, PointAnnotation>();
+            Name = ManagesSinglePUFunction ? $"{_criteria[0].Name} - Utility" : "Partial Utility Functions";
+            Title = ManagesSinglePUFunction ? $"{_criteria[0].Name} - Partial Utility Function" : "Partial Utility Functions";
+            _chartsRanges = new List<Dictionary<double, LineAnnotation>>();
+            _chartsDraggablePoints = new List<Dictionary<double, PointAnnotation>>();
+            _chartsDraggablePointTooltip = new List<TextAnnotation>();
 
-            _line = new LineSeries
+            const double verticalAxisExtraSpace = 0.0001;
+            PlotModels = _criteria.Select(criterion =>
             {
-                Color = _lineColor,
-                StrokeThickness = 3
-            };
-
-            _draggablePointTooltip = new TextAnnotation
-            {
-                Background = _draggablePointTooltipFillColor,
-                Stroke = _draggablePointTooltipStrokeColor,
-                StrokeThickness = 1,
-                Padding = new OxyThickness(8, 2, 8, 2)
-            };
-
-
-            const double verticalAxisExtraSpace = 0.0001; // TODO: consider change
-            var horizontalAxisExtraSpace = (Criterion.MaxValue - Criterion.MinValue) * 0.002;
-            PlotModel = new ViewResolvingPlotModel
-            {
-                Series = {_line},
-                DefaultFont = "Segoe UI",
-                DefaultFontSize = 14,
-                Padding = new OxyThickness(0, 0, 0, 0),
-                PlotAreaBackground = OxyColors.White,
-                Axes =
+                var horizontalAxisExtraSpace = (criterion.MaxValue - criterion.MinValue) * 0.002;
+                return new ViewResolvingPlotModel
                 {
-                    new LinearAxis
+                    Title = ManagesSinglePUFunction ? null : criterion.Name,
+                    TitleFontSize = AreChartsDense ? 12 : 16,
+                    TitleFontWeight = 400,
+                    Series =
                     {
-                        Position = AxisPosition.Left,
-                        Title = "Partial Utility",
-                        FontSize = 16,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MajorGridlineColor = _gridColor,
-                        AbsoluteMinimum = 0 - verticalAxisExtraSpace,
-                        AbsoluteMaximum = 1 + verticalAxisExtraSpace,
-                        Minimum = 0 - verticalAxisExtraSpace,
-                        Maximum = 1 + verticalAxisExtraSpace,
-                        MajorTickSize = 8,
-                        IntervalLength = 30,
-                        AxisTitleDistance = 12
+                        new LineSeries
+                        {
+                            Color = _lineColor,
+                            StrokeThickness = 3
+                        }
                     },
-                    new LinearAxis
+                    DefaultFont = "Segoe UI",
+                    DefaultFontSize = AreChartsDense ? 11 : 14,
+                    Padding = new OxyThickness(0, 0, 0, 0),
+                    PlotAreaBackground = OxyColors.White,
+                    Axes =
                     {
-                        Position = AxisPosition.Bottom,
-                        Title = "Criterion Value",
-                        FontSize = 16,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MajorGridlineColor = _gridColor,
-                        AbsoluteMinimum = Criterion.MinValue - horizontalAxisExtraSpace,
-                        AbsoluteMaximum = Criterion.MaxValue + horizontalAxisExtraSpace,
-                        Minimum = Criterion.MinValue - horizontalAxisExtraSpace,
-                        Maximum = Criterion.MaxValue + horizontalAxisExtraSpace,
-                        MajorTickSize = 8,
-                        AxisTitleDistance = 4
+                        new LinearAxis
+                        {
+                            Position = AxisPosition.Left,
+                            Title = "Utility",
+                            FontSize = AreChartsDense ? 12 : 16,
+                            MajorGridlineStyle = LineStyle.Solid,
+                            MajorGridlineColor = _gridColor,
+                            AbsoluteMinimum = 0 - verticalAxisExtraSpace,
+                            AbsoluteMaximum = 1 + verticalAxisExtraSpace,
+                            Minimum = 0 - verticalAxisExtraSpace,
+                            Maximum = 1 + verticalAxisExtraSpace,
+                            MajorTickSize = 8,
+                            IntervalLength = AreChartsDense ? 20 : 30,
+                            AxisTitleDistance = AreChartsDense ? 10 : 12
+                        },
+                        new LinearAxis
+                        {
+                            Position = AxisPosition.Bottom,
+                            Title = "Criterion Value",
+                            FontSize = AreChartsDense ? 12 : 16,
+                            MajorGridlineStyle = LineStyle.Solid,
+                            MajorGridlineColor = _gridColor,
+                            AbsoluteMinimum = criterion.MinValue - horizontalAxisExtraSpace,
+                            AbsoluteMaximum = criterion.MaxValue + horizontalAxisExtraSpace,
+                            Minimum = criterion.MinValue - horizontalAxisExtraSpace,
+                            Maximum = criterion.MaxValue + horizontalAxisExtraSpace,
+                            MajorTickSize = 8,
+                            AxisTitleDistance = 4
+                        }
                     }
-                }
-            };
+                };
+            }).ToList();
+
             GenerateChartData();
         }
 
 
-        public ViewResolvingPlotModel PlotModel { get; }
-        public Criterion Criterion { get; }
         public string Title { get; }
+        public List<ViewResolvingPlotModel> PlotModels { get; }
+        public bool AreChartsDense => _chartsPartialUtilities.Count >= 10;
+        public bool ManagesSinglePUFunction => _chartsPartialUtilities.Count == 1;
+        public int NumberOfColumns => (int) Math.Sqrt(PlotModels.Count);
+
+        public int NumberOfRows
+        {
+            get
+            {
+                var rows = (int) Math.Round(Math.Sqrt(PlotModels.Count));
+                return rows * NumberOfColumns < PlotModels.Count ? rows + 1 : rows;
+            }
+        }
 
 
         public void GenerateChartData()
         {
-            _ranges.Clear();
-            _draggablePoints.Clear();
-            _line.Points.Clear();
-            PlotModel.Annotations.Clear();
-
-            foreach (var pointValues in _pointsValues)
+            _chartsDraggablePointTooltip.Clear();
+            _chartsDraggablePoints.Clear();
+            _chartsRanges.Clear();
+            for (var i = 0; i < PlotModels.Count; i++)
             {
-                var point = new DataPoint(pointValues.X, pointValues.Y);
-                _line.Points.Add(point);
+                var chartIndex = i;
 
-                var range = new LineAnnotation
+                void ChartAnnotationOnMouseDown(object sender, OxyMouseDownEventArgs e)
                 {
-                    Type = LineAnnotationType.Vertical,
-                    X = pointValues.X,
-                    MinimumY = pointValues.MinValue,
-                    MaximumY = pointValues.MaxValue,
-                    StrokeThickness = 8,
-                    Color = _rangesColor,
-                    LineStyle = LineStyle.Solid
-                };
-                _ranges.Add(pointValues.X, range);
-                range.MouseDown += AnnotationOnMouseDown;
-                range.MouseMove += AnnotationOnMouseMove;
-                range.MouseUp += AnnotationOnMouseUp;
-                PlotModel.Annotations.Add(range);
+                    AnnotationOnMouseDown(chartIndex, sender, e);
+                }
 
-                var draggablePoint = new PointAnnotation
+                void ChartAnnotationOnMouseMove(object sender, OxyMouseEventArgs e)
                 {
-                    X = pointValues.X,
-                    Y = pointValues.Y,
-                    Size = 8,
-                    Fill = _colorPrimary
+                    AnnotationOnMouseMove(chartIndex, sender, e);
+                }
+
+                void ChartAnnotationOnMouseUp(object sender, OxyMouseEventArgs e)
+                {
+                    AnnotationOnMouseUp(chartIndex, sender, e);
+                }
+
+                var plotModel = PlotModels[i];
+                var linePoints = GetPlotLinePoints(plotModel);
+                plotModel.Annotations.Clear();
+                linePoints.Clear();
+                _chartsRanges.Add(new Dictionary<double, LineAnnotation>());
+                _chartsDraggablePoints.Add(new Dictionary<double, PointAnnotation>());
+
+                foreach (var pointValues in _chartsPointsValues[i])
+                {
+                    var point = new DataPoint(pointValues.X, pointValues.Y);
+                    linePoints.Add(point);
+
+                    var range = new LineAnnotation
+                    {
+                        Type = LineAnnotationType.Vertical,
+                        X = pointValues.X,
+                        MinimumY = pointValues.MinValue,
+                        MaximumY = pointValues.MaxValue,
+                        StrokeThickness = 8,
+                        Color = _rangesColor,
+                        LineStyle = LineStyle.Solid
+                    };
+                    _chartsRanges[i].Add(pointValues.X, range);
+                    range.MouseDown += ChartAnnotationOnMouseDown;
+                    range.MouseMove += ChartAnnotationOnMouseMove;
+                    range.MouseUp += ChartAnnotationOnMouseUp;
+                    plotModel.Annotations.Add(range);
+
+                    var draggablePoint = new PointAnnotation
+                    {
+                        X = pointValues.X,
+                        Y = pointValues.Y,
+                        Size = 8,
+                        Fill = _colorPrimary
+                    };
+                    _chartsDraggablePoints[i].Add(pointValues.X, draggablePoint);
+                    draggablePoint.MouseDown += ChartAnnotationOnMouseDown;
+                    draggablePoint.MouseMove += ChartAnnotationOnMouseMove;
+                    draggablePoint.MouseUp += ChartAnnotationOnMouseUp;
+                    plotModel.Annotations.Add(draggablePoint);
+                }
+
+                var draggablePointTooltip = new TextAnnotation
+                {
+                    Background = _draggablePointTooltipFillColor,
+                    Stroke = _draggablePointTooltipStrokeColor,
+                    StrokeThickness = 1,
+                    Padding = new OxyThickness(8, 2, 8, 2)
                 };
-                _draggablePoints.Add(pointValues.X, draggablePoint);
-                draggablePoint.MouseDown += AnnotationOnMouseDown;
-                draggablePoint.MouseMove += AnnotationOnMouseMove;
-                draggablePoint.MouseUp += AnnotationOnMouseUp;
-                PlotModel.Annotations.Add(draggablePoint);
+                _chartsDraggablePointTooltip.Add(draggablePointTooltip);
+
+                plotModel.Annotations.Add(draggablePointTooltip);
+                plotModel.InvalidatePlot(false);
             }
-
-            PlotModel.Annotations.Add(_draggablePointTooltip);
-            PlotModel.InvalidatePlot(false);
         }
 
-        private void AnnotationOnMouseDown(object sender, OxyMouseDownEventArgs e)
+        private void AnnotationOnMouseDown(int chartIndex, object sender, OxyMouseDownEventArgs e)
         {
             if (e.ChangedButton != OxyMouseButton.Left) return;
             Mouse.OverrideCursor = Cursors.Hand;
-            GetLineAndPointAnnotation(sender, out var lineAnnotation, out var pointAnnotation);
+            SetLineAndPointAnnotation(sender, chartIndex, out var lineAnnotation, out var pointAnnotation);
             pointAnnotation.Fill = OxyColor.FromRgb(97, 149, 250);
             if (sender is LineAnnotation)
             {
@@ -187,67 +233,77 @@ namespace UTA.ViewModels
                     pointAnnotation.Y = cursorCoords.Y;
                 else if (cursorCoords.Y > lineAnnotation.MaximumY) pointAnnotation.Y = lineAnnotation.MaximumY;
                 else pointAnnotation.Y = lineAnnotation.MinimumY;
-                var linePointIndex = _line.Points.FindIndex(point => point.X == pointAnnotation.X);
                 // initializing new datapoint, because it doesn't have a setter
-                _line.Points[linePointIndex] = new DataPoint(pointAnnotation.X, pointAnnotation.Y);
+                var linePoints = GetPlotLinePoints(PlotModels[chartIndex]);
+                linePoints[linePoints.FindIndex(point => point.X == pointAnnotation.X)] =
+                    new DataPoint(pointAnnotation.X, pointAnnotation.Y);
             }
 
-            GenerateDraggablePointTooltip(pointAnnotation);
-            PlotEventHandler(e);
+            GenerateDraggablePointTooltip(chartIndex, pointAnnotation);
+            PlotEventHandler(chartIndex, e);
         }
 
-        private void AnnotationOnMouseMove(object sender, OxyMouseEventArgs e)
+        private void AnnotationOnMouseMove(int chartIndex, object sender, OxyMouseEventArgs e)
         {
-            GetLineAndPointAnnotation(sender, out var lineAnnotation, out var pointAnnotation);
+            SetLineAndPointAnnotation(sender, chartIndex, out var lineAnnotation, out var pointAnnotation);
             var cursorCoords = pointAnnotation.InverseTransform(e.Position);
             if (cursorCoords.Y >= lineAnnotation.MinimumY && cursorCoords.Y <= lineAnnotation.MaximumY)
                 pointAnnotation.Y = cursorCoords.Y;
             else if (cursorCoords.Y > lineAnnotation.MaximumY) pointAnnotation.Y = lineAnnotation.MaximumY;
             else pointAnnotation.Y = lineAnnotation.MinimumY;
-            var linePointIndex = _line.Points.FindIndex(point => point.X == pointAnnotation.X);
-            _line.Points[linePointIndex] = new DataPoint(pointAnnotation.X, pointAnnotation.Y);
-            GenerateDraggablePointTooltip(pointAnnotation);
-            PlotEventHandler(e);
+            var linePoints = GetPlotLinePoints(PlotModels[chartIndex]);
+            linePoints[linePoints.FindIndex(point => point.X == pointAnnotation.X)] = new DataPoint(pointAnnotation.X, pointAnnotation.Y);
+            GenerateDraggablePointTooltip(chartIndex, pointAnnotation);
+            PlotEventHandler(chartIndex, e);
         }
 
-        private void AnnotationOnMouseUp(object sender, OxyMouseEventArgs e)
+        private void AnnotationOnMouseUp(int chartIndex, object sender, OxyMouseEventArgs e)
         {
-            GetLineAndPointAnnotation(sender, out _, out var pointAnnotation);
+            SetLineAndPointAnnotation(sender, chartIndex, out _, out var pointAnnotation);
             Mouse.OverrideCursor = null;
             pointAnnotation.Fill = _colorPrimary;
-            _draggablePointTooltip.TextPosition = DataPoint.Undefined;
-            PlotEventHandler(e);
-            _solver.ChangeValue(pointAnnotation.Y, _partialUtility,
-                _partialUtility.PointsValues.FindIndex(point => point.X == pointAnnotation.X));
+            _chartsDraggablePointTooltip[chartIndex].TextPosition = DataPoint.Undefined;
+            PlotEventHandler(chartIndex, e);
+
+            _solver.ChangeValue(pointAnnotation.Y, _chartsPartialUtilities[chartIndex],
+                _chartsPartialUtilities[chartIndex].PointsValues.FindIndex(point => point.X == pointAnnotation.X));
             _refreshCharts();
         }
 
-        private void GenerateDraggablePointTooltip(PointAnnotation pointAnnotation)
+        private void GenerateDraggablePointTooltip(int chartIndex, PointAnnotation pointAnnotation)
         {
-            _draggablePointTooltip.Text = Math.Round(pointAnnotation.Y, _settings.PlotsPartialUtilityDecimalPlaces)
+            var draggablePointTooltip = _chartsDraggablePointTooltip[chartIndex];
+            draggablePointTooltip.Text = Math.Round(pointAnnotation.Y, _settings.PlotsPartialUtilityDecimalPlaces)
                 .ToString($"F{_settings.PlotsPartialUtilityDecimalPlaces}");
-            _draggablePointTooltip.TextPosition = new DataPoint(pointAnnotation.X, pointAnnotation.Y);
+            draggablePointTooltip.TextPosition = new DataPoint(pointAnnotation.X, pointAnnotation.Y);
             double xOffset = 4 * _settings.PlotsPartialUtilityDecimalPlaces + 24;
-            _draggablePointTooltip.Offset = new ScreenVector(pointAnnotation.X == Criterion.MinValue ? xOffset : -1 * xOffset, 9);
+            draggablePointTooltip.Offset =
+                new ScreenVector(pointAnnotation.X == _criteria[chartIndex].MinValue ? xOffset : -1 * xOffset, 9);
         }
 
-        private void GetLineAndPointAnnotation(object sender, out LineAnnotation outLineAnnotation, out PointAnnotation outPointAnnotation)
+        private void SetLineAndPointAnnotation(object sender, int chartIndex, out LineAnnotation outLineAnnotation,
+            out PointAnnotation outPointAnnotation)
         {
             if (sender is PointAnnotation)
             {
                 outPointAnnotation = (PointAnnotation) sender;
-                outLineAnnotation = _ranges[outPointAnnotation.X];
+                outLineAnnotation = _chartsRanges[chartIndex][outPointAnnotation.X];
             }
             else
             {
                 outLineAnnotation = (LineAnnotation) sender;
-                outPointAnnotation = _draggablePoints[outLineAnnotation.X];
+                outPointAnnotation = _chartsDraggablePoints[chartIndex][outLineAnnotation.X];
             }
         }
 
-        private void PlotEventHandler(OxyInputEventArgs e)
+        private List<DataPoint> GetPlotLinePoints(PlotModel plotModel)
         {
-            PlotModel.InvalidatePlot(false);
+            return ((LineSeries) plotModel.Series[0]).Points;
+        }
+
+        private void PlotEventHandler(int chartIndex, OxyInputEventArgs e)
+        {
+            PlotModels[chartIndex].InvalidatePlot(false);
             e.Handled = true;
         }
     }
