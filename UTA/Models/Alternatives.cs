@@ -47,6 +47,7 @@ namespace UTA.Models
                 if (args.PropertyName != nameof(AlternativesCollection)) return;
                 SetReferenceRankingUsingReferenceRankAlternativeProperty();
                 InitializeCriteriaMinMaxUpdaterWatcher();
+                InitializeReferenceRankingUpdaterWatcher();
             };
 
             _criteria.PropertyChanged += (sender, args) =>
@@ -57,6 +58,7 @@ namespace UTA.Models
 
             InitializeCriteriaMinMaxUpdaterWatcher();
             InitializeCriterionValueNameUpdaterWatcher();
+            InitializeReferenceRankingUpdaterWatcher();
         }
 
 
@@ -240,6 +242,23 @@ namespace UTA.Models
                 else if (newCriterionValueValue != null && newCriterionValueValue > criterion.MaxValue)
                     criterion.MaxValue = (double) newCriterionValueValue;
             }
+        }
+
+        private void InitializeReferenceRankingUpdaterWatcher()
+        {
+            AlternativesCollection.CollectionChanged += (sender, e) =>
+            {
+                if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    var removedAlternative = (Alternative) e.OldItems[0];
+                    if (removedAlternative.ReferenceRank == null) return;
+                    _referenceRanking.RemoveAlternativeFromRank(removedAlternative, (int) removedAlternative.ReferenceRank);
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Reset)
+                {
+                    _referenceRanking.Reset();
+                }
+            };
         }
 
         public List<Alternative> GetDeepCopyOfAlternatives()
