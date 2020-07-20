@@ -461,7 +461,7 @@ namespace CalculationsEngine
                 return (min, max);
             }
 
-            nominator += DeltaThreshold - 10E-14;//0.0000001;
+            nominator += DeltaThreshold - 10E-14;
             if (denominator > 0)
             {
                 sum = arrayOfValues[index] + nominator / denominator;
