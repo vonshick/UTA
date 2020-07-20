@@ -47,10 +47,9 @@ namespace CalculationsEngine
 
         public Solver(List<List<Alternative>> referenceRankingList, List<Criterion> criteriaList, List<Alternative> otherAlternatives,
             Results results,
-            bool preserveKendallCoefficient = true, double deltaThreshold = 0.05, double epsilonThreshold = 0.0000001)
+            bool preserveKendallCoefficient = true, double deltaThreshold = 0.0000001)
         {
             DeltaThreshold = deltaThreshold;
-            EpsilonThreshold = epsilonThreshold;
             PreserveKendallCoefficient = preserveKendallCoefficient;
             NumberOfIteration = 250;
             this.criteriaList = criteriaList;
@@ -355,7 +354,7 @@ namespace CalculationsEngine
 
             var deepCopyofMin = new double[min.Length];
             var deepCopyofMax = new double[max.Length];
-            var precision = 1000000;
+            var precision = 10E+14;
             for (var i = 0; i < min.Length; i++)
             {
                 deepCopyofMax[i] = Math.Floor(max[i] * precision) / precision;
@@ -419,7 +418,6 @@ namespace CalculationsEngine
             var nominator = (double) 0;
             var denominator = (double) 0;
             var sum = (double) 0;
-            double precision = 100000000;
 
 
             for (var i = 0; i < arrayOfValues.Length; i++)
@@ -463,7 +461,7 @@ namespace CalculationsEngine
                 return (min, max);
             }
 
-            nominator += DeltaThreshold - 0.0000001;
+            nominator += DeltaThreshold - 10E-14;//0.0000001;
             if (denominator > 0)
             {
                 sum = arrayOfValues[index] + nominator / denominator;
@@ -498,23 +496,23 @@ namespace CalculationsEngine
             for (var row2 = row1; row2 < variantsList.Count; row2++)
                 if (row1 != row2)
                     if (Math.Round(finalRanking.FinalRankingCollection[row1].Utility - finalRanking.FinalRankingCollection[row2].Utility,
-                            8) >=
+                            14) >=
                         DeltaThreshold)
                     {
                         extra++;
                         for (var c = 0; c < criterionFieldsCount; c++)
-                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 14);
                         matrix[extra, matrix.GetLength(1) - 1] = DeltaThreshold;
                     }
                     else
                     {
                         extra++;
                         for (var c = 0; c < criterionFieldsCount; c++)
-                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 7);
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row1, c] - recalculatedMatrix[row2, c], 14);
                         matrix[extra, matrix.GetLength(1) - 1] = 0;
                         extra++;
                         for (var c = 0; c < criterionFieldsCount; c++)
-                            matrix[extra, c] = Math.Round(recalculatedMatrix[row2, c] - recalculatedMatrix[row1, c], 7);
+                            matrix[extra, c] = Math.Round(recalculatedMatrix[row2, c] - recalculatedMatrix[row1, c], 14);
                         matrix[extra, matrix.GetLength(1) - 1] = 0;
                     }
 
@@ -594,11 +592,11 @@ namespace CalculationsEngine
                         }
 
                     if (indexRow == indexCol ||
-                        Math.Round(ranking.FinalRankingCollection[c].Utility - ranking.FinalRankingCollection[row].Utility, 8) >=
+                        Math.Round(ranking.FinalRankingCollection[c].Utility - ranking.FinalRankingCollection[row].Utility, 10) >=
                         DeltaThreshold)
                         rankingMatrix[indexRow, indexCol] = 0;
                     else if (Math.Abs(
-                                 Math.Round(ranking.FinalRankingCollection[c].Utility - ranking.FinalRankingCollection[row].Utility, 8)) <
+                                 Math.Round(ranking.FinalRankingCollection[c].Utility - ranking.FinalRankingCollection[row].Utility, 10)) <
                              DeltaThreshold)
                         rankingMatrix[indexRow, indexCol] = 0.5;
                     else rankingMatrix[indexRow, indexCol] = 1;
@@ -629,7 +627,7 @@ namespace CalculationsEngine
         {
             double score = 0;
             for (var i = 0; i < arrayOfValues.Length; i++) score += arrayOfValues[i] * row[i];
-            return Math.Round(score, 7);
+            return Math.Round(score, 14);
         }
 
         private (List<PartialUtility>, double[]) MakePartialUtilityFunction(Dictionary<double, double> doubles)

@@ -194,8 +194,7 @@ namespace UTA.ViewModels
                 alternativesWithoutRanks,
                 Results,
                 PreserveKendallCoefficient,
-                SettingsTabViewModel.DeltaThreshold,
-                SettingsTabViewModel.EpsilonThreshold
+                SettingsTabViewModel.DeltaThreshold
             );
             _solver.Calculate();
 
@@ -486,8 +485,7 @@ namespace UTA.ViewModels
                     alternativesWithoutRanks,
                     Results,
                     PreserveKendallCoefficient,
-                    SettingsTabViewModel.DeltaThreshold,
-                    SettingsTabViewModel.EpsilonThreshold
+                    SettingsTabViewModel.DeltaThreshold
                 );
                 _solver.LoadState(Results.PartialUtilityFunctions, _currentCalculationReferenceRankingCopy, alternativesWithoutRanks,
                     Results);
